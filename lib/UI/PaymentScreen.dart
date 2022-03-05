@@ -1,3 +1,4 @@
+import 'package:cubic/UI/MainScreen.dart';
 import 'package:flutter/material.dart';
 
 enum members { member1, member2, member3 }
@@ -49,7 +50,12 @@ class PaymentScreen extends StatelessWidget {
                       Padding(
                           padding: EdgeInsets.all(50),
                           child: OutlinedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            MainScreen()));
+                              },
                               child: Text('Pay $price'),
                               style: OutlinedButton.styleFrom(
                                 primary: Colors.white,

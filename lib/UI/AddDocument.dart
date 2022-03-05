@@ -1,18 +1,9 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import 'package:dropdown_button2/dropdown_button2.dart';
+String chip1 = 'Tag 1', chip2 = 'Tag 2', chip3 = 'Tag 3';
 
-List<String> genders = <String>[
-  'Gender',
-  'Male',
-  'Female',
-  'Prefer not to say'
-];
-
-String selectedValue = 'Gender';
-TextStyle defaultStyle = TextStyle(color: Colors.black);
-TextStyle linkStyle = TextStyle(color: const Color(0XFF0000FF));
+enum members { Prescription, Test_Report, Certificate }
+members m = members.Prescription;
 
 class AddDocument extends StatelessWidget {
   const AddDocument({Key? key}) : super(key: key);
@@ -63,7 +54,7 @@ class AddDocument extends StatelessWidget {
                               showCursor: false,
                               decoration: InputDecoration(
                                   contentPadding: EdgeInsets.only(left: 10.0),
-                                  hintText: 'Contact No.',
+                                  hintText: 'Illness',
                                   border: InputBorder.none),
                             ),
                           )),
@@ -80,47 +71,16 @@ class AddDocument extends StatelessWidget {
                               showCursor: false,
                               decoration: InputDecoration(
                                   contentPadding: EdgeInsets.only(left: 10.0),
-                                  hintText: 'Email id',
+                                  hintText: "Doctor's Name",
                                   border: InputBorder.none),
                             ),
                           )),
-                      Container(
-                        margin: EdgeInsets.only(left: 20, right: 20, top: 20),
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: Colors.black, width: 1.5),
-                            borderRadius: BorderRadius.circular(7)),
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 10, right: 10),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton2(
-                              hint: Text(
-                                'Select Item',
-                              ),
-                              items: genders
-                                  .map((item) => DropdownMenuItem<String>(
-                                        value: item,
-                                        child: Text(
-                                          item,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ))
-                                  .toList(),
-                              value: selectedValue,
-                              onChanged: (value) {},
-                            ),
-                          ),
-                        ),
-                      ),
                       Row(
                         children: [
                           Padding(
                             padding: EdgeInsets.all(20),
                             child: Text(
-                              'Date of Birth',
+                              'Date of Visit',
                               style: TextStyle(fontSize: 18.0),
                             ),
                           ),
@@ -166,108 +126,141 @@ class AddDocument extends StatelessWidget {
                               borderRadius: BorderRadius.circular(7)),
                           child: Center(
                             child: TextField(
+                              keyboardType: TextInputType.multiline,
+                              maxLines: 5,
                               showCursor: false,
                               decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.only(left: 10.0),
-                                  hintText: 'Adhar No.',
+                                  contentPadding: EdgeInsets.all(10.0),
+                                  hintText: 'Comments',
                                   border: InputBorder.none),
                             ),
                           )),
-                      Padding(
-                          padding: EdgeInsets.all(15),
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                                onPressed: () {},
-                                child: Text('Add Family Member',
-                                    style: TextStyle(fontSize: 16.0))),
-                          )),
-                      Container(
-                          margin: EdgeInsets.only(left: 20, right: 20),
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              border:
-                                  Border.all(color: Colors.black, width: 1.5),
-                              borderRadius: BorderRadius.circular(7)),
-                          child: Center(
-                            child: TextField(
-                              showCursor: false,
-                              decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.only(left: 10.0),
-                                  hintText: 'Name',
-                                  border: InputBorder.none),
+                      Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                                left: 20.0,
+                                right: 20.0,
+                                top: 20.0,
+                                bottom: 10.0),
+                            child: Text(
+                              'Add Tags',
+                              style: TextStyle(fontSize: 18),
                             ),
                           )),
-                      Container(
-                          margin: EdgeInsets.only(left: 20, right: 20, top: 20),
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              border:
-                                  Border.all(color: Colors.black, width: 1.5),
-                              borderRadius: BorderRadius.circular(7)),
-                          child: Center(
-                            child: TextField(
-                              showCursor: false,
-                              decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.only(left: 10.0),
-                                  hintText: 'Relation',
-                                  border: InputBorder.none),
+                      Row(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(left: 20.0),
+                            child: Chip(
+                              padding: EdgeInsets.only(left: 20, right: 20),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(7.5)),
+                                  side: BorderSide()),
+                              label: Text('$chip1'),
+                              backgroundColor: const Color(0xFFFFFFF),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 10.0),
+                            child: Chip(
+                              padding: EdgeInsets.only(left: 20, right: 20),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(7.5)),
+                                  side: BorderSide()),
+                              label: Text('$chip2'),
+                              backgroundColor: const Color(0xFFFFFFF),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 10.0),
+                            child: Chip(
+                              padding: EdgeInsets.only(left: 20, right: 20),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(7.5)),
+                                  side: BorderSide()),
+                              label: Text('$chip3'),
+                              backgroundColor: const Color(0xFFFFFFF),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Align(
+                          alignment: Alignment.centerLeft,
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 20.0),
+                            child: Chip(
+                              padding: EdgeInsets.only(left: 20, right: 20),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(7.5)),
+                                  side: BorderSide()),
+                              label: Text('+ Add'),
+                              backgroundColor: const Color(0xFFFFFFF),
                             ),
                           )),
-                      Container(
-                        margin: EdgeInsets.only(left: 20, right: 20, top: 20),
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: Colors.black, width: 1.5),
-                            borderRadius: BorderRadius.circular(7)),
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 10, right: 10),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton2(
-                              hint: Text(
-                                'Select Item',
+                      Row(
+                        // mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          Expanded(
+                            child: ListTile(
+                              contentPadding: EdgeInsets.all(0),
+                              title: const Text('Prescription'),
+                              leading: Radio<members>(
+                                value: members.Prescription,
+                                groupValue: m,
+                                onChanged: (members? value) {},
                               ),
-                              items: genders
-                                  .map((item) => DropdownMenuItem<String>(
-                                        value: item,
-                                        child: Text(
-                                          item,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ))
-                                  .toList(),
-                              value: selectedValue,
-                              onChanged: (value) {},
                             ),
+                          ),
+                          Expanded(
+                            child: ListTile(
+                              contentPadding: EdgeInsets.all(0),
+                              title: const Text('Test Report'),
+                              leading: Radio<members>(
+                                value: members.Test_Report,
+                                groupValue: m,
+                                onChanged: (members? value) {},
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      Expanded(
+                        child: ListTile(
+                          contentPadding: EdgeInsets.all(0),
+                          title: const Text('Certificate'),
+                          leading: Radio<members>(
+                            value: members.Certificate,
+                            groupValue: m,
+                            onChanged: (members? value) {},
                           ),
                         ),
                       ),
+                      Text('* Size of Document should be less than 500 KB'),
                       Padding(
-                          padding:
-                              EdgeInsets.only(top: 20, left: 20, right: 20),
-                          child: RichText(
-                            text: TextSpan(
-                              style: defaultStyle,
-                              children: <TextSpan>[
-                                TextSpan(text: 'By clicking, you accept our '),
-                                TextSpan(
-                                    text: 'Terms and Conditions',
-                                    style: TextStyle(
-                                        color: const Color(0XFF0000FF)),
-                                    recognizer: TapGestureRecognizer()
-                                      ..onTap = () {}),
-                              ],
-                            ),
+                          padding: EdgeInsets.only(left: 20.0),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: OutlinedButton(
+                                onPressed: () {},
+                                child: Text("Upload"),
+                                style: OutlinedButton.styleFrom(
+                                  padding:
+                                      EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
+                                  primary: Colors.white,
+                                  backgroundColor: const Color(0XFF208FEE),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5)),
+                                )),
                           )),
                       Align(
                         child: OutlinedButton(
                             onPressed: () {},
-                            child: Text("Register"),
+                            child: Text("Save"),
                             style: OutlinedButton.styleFrom(
                               padding:
                                   EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
