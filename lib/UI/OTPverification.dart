@@ -8,21 +8,14 @@ class otpVerification extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.white,
       body: Column(
         children: <Widget>[
           Header(
               title: 'Verify OTP',
               subtitle: 'A 6 digit OTP has been sent to your number'),
-          Expanded(
-              child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(5),
-                      topRight: Radius.circular(5),
-                    ),
-                  ),
-                  child: verification())),
+          verification(),
           Expanded(
             child: Align(
                 alignment: FractionalOffset.bottomCenter,
