@@ -12,7 +12,6 @@ class login extends StatelessWidget {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Column(
-        mainAxisSize: MainAxisSize.max,
         children: <Widget>[
           Header(title: 'Login', subtitle: "Welcome to Cubic"),
           Material(
@@ -53,8 +52,9 @@ class login extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: EdgeInsets.all(50.0),
+            padding: EdgeInsets.all(25.0),
             child: Divider(
+              height: 2,
               color: const Color(0xFFBEB9B9),
             ),
           ),
@@ -90,7 +90,7 @@ class login extends StatelessWidget {
                 padding: EdgeInsets.only(bottom: 10.0),
                 child: Image.asset(
                   'Assets/logo_rectangular.png',
-                  width: 150.0,
+                  width: 100.0,
                 )),
           )),
         ],

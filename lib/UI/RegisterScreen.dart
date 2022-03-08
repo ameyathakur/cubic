@@ -1,5 +1,6 @@
 import 'package:cubic/UI/MainScreen.dart';
 import 'package:cubic/UI/PaymentScreen.dart';
+import 'package:cubic/Widgets/Button.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -22,16 +23,18 @@ class RegisterScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: Row(
         children: [
+          // A flexible child that will grow to fit the viewport but
+          // still be at least as big as necessary to fit its contents.
           Container(
+            color: const Color(0xFFFFBD59), // Red
             width: 73.0,
-            height: double.infinity,
-            color: const Color(0xFFFFBD59),
           ),
           Expanded(
-              child: Padding(
+              child: SingleChildScrollView(
                   padding: EdgeInsets.only(top: 50),
                   child: Column(
                     children: [
@@ -266,24 +269,17 @@ class RegisterScreen extends StatelessWidget {
                               ],
                             ),
                           )),
-                      Align(
-                        child: OutlinedButton(
-                            onPressed: () {
-                              Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          PaymentScreen()));
-                            },
-                            child: Text("Register"),
-                            style: OutlinedButton.styleFrom(
-                              padding:
-                                  EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
-                              primary: Colors.white,
-                              backgroundColor: const Color(0XFF208FEE),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5)),
-                            )),
-                      )
+                      Button(
+                          text: 'Register',
+                          onPress: () {
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        PaymentScreen()));
+                          },
+                          color: const Color(0XFF208FEE),
+                          borderColor: const Color(0XFF208FEE),
+                          textColor: Colors.white)
                     ],
                   ))),
         ],

@@ -1,4 +1,5 @@
 import 'package:cubic/UI/MainScreen.dart';
+import 'package:cubic/Widgets/Button.dart';
 import 'package:flutter/material.dart';
 
 enum members { member1, member2, member3 }
@@ -11,6 +12,7 @@ class PaymentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: Colors.white,
         body: Row(children: [
           Container(
@@ -47,23 +49,17 @@ class PaymentScreen extends StatelessWidget {
                           onChanged: (members? value) {},
                         ),
                       ),
-                      Padding(
-                          padding: EdgeInsets.all(50),
-                          child: OutlinedButton(
-                              onPressed: () {
-                                Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(
-                                        builder: (BuildContext context) =>
-                                            MainScreen()));
-                              },
-                              child: Text('Pay $price'),
-                              style: OutlinedButton.styleFrom(
-                                primary: Colors.white,
-                                padding: EdgeInsets.fromLTRB(40, 15, 40, 15),
-                                backgroundColor: const Color(0XFF208FEE),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(5)),
-                              ))),
+                      Button(
+                          text: 'Pay 500',
+                          onPress: () {
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        MainScreen()));
+                          },
+                          color: const Color(0XFF208FEE),
+                          borderColor: const Color(0XFF208FEE),
+                          textColor: Colors.white),
                     ],
                   ))),
         ]));

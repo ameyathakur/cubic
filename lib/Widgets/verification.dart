@@ -1,5 +1,4 @@
 import 'package:cubic/Widgets/Button.dart';
-import 'package:cubic/Widgets/verifyButton.dart';
 import 'package:flutter/material.dart';
 import 'package:timer_count_down/timer_count_down.dart';
 

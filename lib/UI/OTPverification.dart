@@ -23,7 +23,7 @@ class otpVerification extends StatelessWidget {
                   padding: EdgeInsets.only(bottom: 20.0),
                   child: Image.asset(
                     'Assets/logo_rectangular.png',
-                    width: 150.0,
+                    width: 100.0,
                   ),
                 )),
           ),
