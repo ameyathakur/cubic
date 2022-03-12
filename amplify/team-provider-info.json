@@ -1,15 +1,15 @@
 {
-  "dev": {
+  "staging": {
     "awscloudformation": {
-      "AuthRoleName": "amplify-cubic-dev-163340-authRole",
-      "UnauthRoleArn": "arn:aws:iam::875521975348:role/amplify-cubic-dev-163340-unauthRole",
-      "AuthRoleArn": "arn:aws:iam::875521975348:role/amplify-cubic-dev-163340-authRole",
+      "AuthRoleName": "amplify-cubic-staging-92026-authRole",
+      "UnauthRoleArn": "arn:aws:iam::875521975348:role/amplify-cubic-staging-92026-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::875521975348:role/amplify-cubic-staging-92026-authRole",
       "Region": "us-east-1",
-      "DeploymentBucketName": "amplify-cubic-dev-163340-deployment",
-      "UnauthRoleName": "amplify-cubic-dev-163340-unauthRole",
-      "StackName": "amplify-cubic-dev-163340",
-      "StackId": "arn:aws:cloudformation:us-east-1:875521975348:stack/amplify-cubic-dev-163340/bf0e73b0-a061-11ec-ad58-12b3b598c3bf",
-      "AmplifyAppId": "d3npdyodkwzb56"
+      "DeploymentBucketName": "amplify-cubic-staging-92026-deployment",
+      "UnauthRoleName": "amplify-cubic-staging-92026-unauthRole",
+      "StackName": "amplify-cubic-staging-92026",
+      "StackId": "arn:aws:cloudformation:us-east-1:875521975348:stack/amplify-cubic-staging-92026/a72efd20-a1e5-11ec-a551-0ad66499fd2d",
+      "AmplifyAppId": "d3j1in02rb6xfh"
     }
   }
 }

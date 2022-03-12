@@ -20,15 +20,17 @@
 // ignore_for_file: public_member_api_docs, file_names, unnecessary_new, prefer_if_null_operators, prefer_const_constructors, slash_for_doc_comments, annotate_overrides, non_constant_identifier_names, unnecessary_string_interpolations, prefer_adjacent_string_concatenation, unnecessary_const, dead_code
 
 import 'package:amplify_core/amplify_core.dart';
-import 'Todo.dart';
+import 'Member.dart';
+import 'User.dart';
 
-export 'Todo.dart';
+export 'Member.dart';
+export 'User.dart';
 
 class ModelProvider implements ModelProviderInterface {
   @override
-  String version = "599e744705d4d7e86099648b0b7c6023";
+  String version = "13bc00b0fdbc6b98b8f4e5e9ac035295";
   @override
-  List<ModelSchema> modelSchemas = [Todo.schema];
+  List<ModelSchema> modelSchemas = [Member.schema, User.schema];
   static final ModelProvider _instance = ModelProvider();
   @override
   List<ModelSchema> customTypeSchemas = [];
@@ -37,8 +39,10 @@ class ModelProvider implements ModelProviderInterface {
   
   ModelType getModelTypeByModelName(String modelName) {
     switch(modelName) {
-      case "Todo":
-        return Todo.classType;
+      case "Member":
+        return Member.classType;
+      case "User":
+        return User.classType;
       default:
         throw Exception("Failed to find model in model provider for model name: " + modelName);
     }

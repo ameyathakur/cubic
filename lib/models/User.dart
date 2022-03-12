@@ -19,21 +19,20 @@
 
 // ignore_for_file: public_member_api_docs, file_names, unnecessary_new, prefer_if_null_operators, prefer_const_constructors, slash_for_doc_comments, annotate_overrides, non_constant_identifier_names, unnecessary_string_interpolations, prefer_adjacent_string_concatenation, unnecessary_const, dead_code
 
+import 'ModelProvider.dart';
 import 'package:amplify_core/amplify_core.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
 
-/** This is an auto generated class representing the Todo type in your schema. */
+/** This is an auto generated class representing the User type in your schema. */
 @immutable
-class Todo extends Model {
-  static const classType = const _TodoModelType();
+class User extends Model {
+  static const classType = const _UserModelType();
   final String id;
-  final String? _name;
   final String? _emaild_id;
   final String? _contact_no;
-  final String? _dob;
-  final String? _gender;
-  final String? _adhar_no;
+  final List<Member>? _members;
   final TemporalDateTime? _createdAt;
   final TemporalDateTime? _updatedAt;
 
@@ -45,9 +44,9 @@ class Todo extends Model {
     return id;
   }
   
-  String get name {
+  String get emaild_id {
     try {
-      return _name!;
+      return _emaild_id!;
     } catch(e) {
       throw new AmplifyCodeGenModelException(
           AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
@@ -58,24 +57,21 @@ class Todo extends Model {
     }
   }
   
-  String? get emaild_id {
-    return _emaild_id;
+  String get contact_no {
+    try {
+      return _contact_no!;
+    } catch(e) {
+      throw new AmplifyCodeGenModelException(
+          AmplifyExceptionMessages.codeGenRequiredFieldForceCastExceptionMessage,
+          recoverySuggestion:
+            AmplifyExceptionMessages.codeGenRequiredFieldForceCastRecoverySuggestion,
+          underlyingException: e.toString()
+          );
+    }
   }
   
-  String? get contact_no {
-    return _contact_no;
-  }
-  
-  String? get dob {
-    return _dob;
-  }
-  
-  String? get gender {
-    return _gender;
-  }
-  
-  String? get adhar_no {
-    return _adhar_no;
+  List<Member>? get members {
+    return _members;
   }
   
   TemporalDateTime? get createdAt {
@@ -86,17 +82,14 @@ class Todo extends Model {
     return _updatedAt;
   }
   
-  const Todo._internal({required this.id, required name, emaild_id, contact_no, dob, gender, adhar_no, createdAt, updatedAt}): _name = name, _emaild_id = emaild_id, _contact_no = contact_no, _dob = dob, _gender = gender, _adhar_no = adhar_no, _createdAt = createdAt, _updatedAt = updatedAt;
+  const User._internal({required this.id, required emaild_id, required contact_no, members, createdAt, updatedAt}): _emaild_id = emaild_id, _contact_no = contact_no, _members = members, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory Todo({String? id, required String name, String? emaild_id, String? contact_no, String? dob, String? gender, String? adhar_no}) {
-    return Todo._internal(
+  factory User({String? id, required String emaild_id, required String contact_no, List<Member>? members}) {
+    return User._internal(
       id: id == null ? UUID.getUUID() : id,
-      name: name,
       emaild_id: emaild_id,
       contact_no: contact_no,
-      dob: dob,
-      gender: gender,
-      adhar_no: adhar_no);
+      members: members != null ? List<Member>.unmodifiable(members) : members);
   }
   
   bool equals(Object other) {
@@ -106,14 +99,11 @@ class Todo extends Model {
   @override
   bool operator ==(Object other) {
     if (identical(other, this)) return true;
-    return other is Todo &&
+    return other is User &&
       id == other.id &&
-      _name == other._name &&
       _emaild_id == other._emaild_id &&
       _contact_no == other._contact_no &&
-      _dob == other._dob &&
-      _gender == other._gender &&
-      _adhar_no == other._adhar_no;
+      DeepCollectionEquality().equals(_members, other._members);
   }
   
   @override
@@ -123,14 +113,10 @@ class Todo extends Model {
   String toString() {
     var buffer = new StringBuffer();
     
-    buffer.write("Todo {");
+    buffer.write("User {");
     buffer.write("id=" + "$id" + ", ");
-    buffer.write("name=" + "$_name" + ", ");
     buffer.write("emaild_id=" + "$_emaild_id" + ", ");
     buffer.write("contact_no=" + "$_contact_no" + ", ");
-    buffer.write("dob=" + "$_dob" + ", ");
-    buffer.write("gender=" + "$_gender" + ", ");
-    buffer.write("adhar_no=" + "$_adhar_no" + ", ");
     buffer.write("createdAt=" + (_createdAt != null ? _createdAt!.format() : "null") + ", ");
     buffer.write("updatedAt=" + (_updatedAt != null ? _updatedAt!.format() : "null"));
     buffer.write("}");
@@ -138,79 +124,60 @@ class Todo extends Model {
     return buffer.toString();
   }
   
-  Todo copyWith({String? id, String? name, String? emaild_id, String? contact_no, String? dob, String? gender, String? adhar_no}) {
-    return Todo._internal(
+  User copyWith({String? id, String? emaild_id, String? contact_no, List<Member>? members}) {
+    return User._internal(
       id: id ?? this.id,
-      name: name ?? this.name,
       emaild_id: emaild_id ?? this.emaild_id,
       contact_no: contact_no ?? this.contact_no,
-      dob: dob ?? this.dob,
-      gender: gender ?? this.gender,
-      adhar_no: adhar_no ?? this.adhar_no);
+      members: members ?? this.members);
   }
   
-  Todo.fromJson(Map<String, dynamic> json)  
+  User.fromJson(Map<String, dynamic> json)  
     : id = json['id'],
-      _name = json['name'],
       _emaild_id = json['emaild_id'],
       _contact_no = json['contact_no'],
-      _dob = json['dob'],
-      _gender = json['gender'],
-      _adhar_no = json['adhar_no'],
+      _members = json['members'] is List
+        ? (json['members'] as List)
+          .where((e) => e?['serializedData'] != null)
+          .map((e) => Member.fromJson(new Map<String, dynamic>.from(e['serializedData'])))
+          .toList()
+        : null,
       _createdAt = json['createdAt'] != null ? TemporalDateTime.fromString(json['createdAt']) : null,
       _updatedAt = json['updatedAt'] != null ? TemporalDateTime.fromString(json['updatedAt']) : null;
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'name': _name, 'emaild_id': _emaild_id, 'contact_no': _contact_no, 'dob': _dob, 'gender': _gender, 'adhar_no': _adhar_no, 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'emaild_id': _emaild_id, 'contact_no': _contact_no, 'members': _members?.map((Member? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
   };
 
-  static final QueryField ID = QueryField(fieldName: "todo.id");
-  static final QueryField NAME = QueryField(fieldName: "name");
+  static final QueryField ID = QueryField(fieldName: "user.id");
   static final QueryField EMAILD_ID = QueryField(fieldName: "emaild_id");
   static final QueryField CONTACT_NO = QueryField(fieldName: "contact_no");
-  static final QueryField DOB = QueryField(fieldName: "dob");
-  static final QueryField GENDER = QueryField(fieldName: "gender");
-  static final QueryField ADHAR_NO = QueryField(fieldName: "adhar_no");
+  static final QueryField MEMBERS = QueryField(
+    fieldName: "members",
+    fieldType: ModelFieldType(ModelFieldTypeEnum.model, ofModelName: (Member).toString()));
   static var schema = Model.defineSchema(define: (ModelSchemaDefinition modelSchemaDefinition) {
-    modelSchemaDefinition.name = "Todo";
-    modelSchemaDefinition.pluralName = "Todos";
+    modelSchemaDefinition.name = "User";
+    modelSchemaDefinition.pluralName = "Users";
     
     modelSchemaDefinition.addField(ModelFieldDefinition.id());
     
     modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: Todo.NAME,
+      key: User.EMAILD_ID,
       isRequired: true,
       ofType: ModelFieldType(ModelFieldTypeEnum.string)
     ));
     
     modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: Todo.EMAILD_ID,
-      isRequired: false,
+      key: User.CONTACT_NO,
+      isRequired: true,
       ofType: ModelFieldType(ModelFieldTypeEnum.string)
     ));
     
-    modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: Todo.CONTACT_NO,
+    modelSchemaDefinition.addField(ModelFieldDefinition.hasMany(
+      key: User.MEMBERS,
       isRequired: false,
-      ofType: ModelFieldType(ModelFieldTypeEnum.string)
-    ));
-    
-    modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: Todo.DOB,
-      isRequired: false,
-      ofType: ModelFieldType(ModelFieldTypeEnum.string)
-    ));
-    
-    modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: Todo.GENDER,
-      isRequired: false,
-      ofType: ModelFieldType(ModelFieldTypeEnum.string)
-    ));
-    
-    modelSchemaDefinition.addField(ModelFieldDefinition.field(
-      key: Todo.ADHAR_NO,
-      isRequired: false,
-      ofType: ModelFieldType(ModelFieldTypeEnum.string)
+      ofModelName: (Member).toString(),
+      associatedKey: Member.USERMEMBERSID
     ));
     
     modelSchemaDefinition.addField(ModelFieldDefinition.nonQueryField(
@@ -229,11 +196,11 @@ class Todo extends Model {
   });
 }
 
-class _TodoModelType extends ModelType<Todo> {
-  const _TodoModelType();
+class _UserModelType extends ModelType<User> {
+  const _UserModelType();
   
   @override
-  Todo fromJson(Map<String, dynamic> jsonData) {
-    return Todo.fromJson(jsonData);
+  User fromJson(Map<String, dynamic> jsonData) {
+    return User.fromJson(jsonData);
   }
 }
