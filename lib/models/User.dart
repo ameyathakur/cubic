@@ -19,9 +19,7 @@
 
 // ignore_for_file: public_member_api_docs, file_names, unnecessary_new, prefer_if_null_operators, prefer_const_constructors, slash_for_doc_comments, annotate_overrides, non_constant_identifier_names, unnecessary_string_interpolations, prefer_adjacent_string_concatenation, unnecessary_const, dead_code
 
-import 'ModelProvider.dart';
 import 'package:amplify_core/amplify_core.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 
 
@@ -32,7 +30,7 @@ class User extends Model {
   final String id;
   final String? _emaild_id;
   final String? _contact_no;
-  final List<Member>? _members;
+  final String? _members;
   final TemporalDateTime? _createdAt;
   final TemporalDateTime? _updatedAt;
 
@@ -70,7 +68,7 @@ class User extends Model {
     }
   }
   
-  List<Member>? get members {
+  String? get members {
     return _members;
   }
   
@@ -84,12 +82,12 @@ class User extends Model {
   
   const User._internal({required this.id, required emaild_id, required contact_no, members, createdAt, updatedAt}): _emaild_id = emaild_id, _contact_no = contact_no, _members = members, _createdAt = createdAt, _updatedAt = updatedAt;
   
-  factory User({String? id, required String emaild_id, required String contact_no, List<Member>? members}) {
+  factory User({String? id, required String emaild_id, required String contact_no, String? members}) {
     return User._internal(
       id: id == null ? UUID.getUUID() : id,
       emaild_id: emaild_id,
       contact_no: contact_no,
-      members: members != null ? List<Member>.unmodifiable(members) : members);
+      members: members);
   }
   
   bool equals(Object other) {
@@ -103,7 +101,7 @@ class User extends Model {
       id == other.id &&
       _emaild_id == other._emaild_id &&
       _contact_no == other._contact_no &&
-      DeepCollectionEquality().equals(_members, other._members);
+      _members == other._members;
   }
   
   @override
@@ -117,6 +115,7 @@ class User extends Model {
     buffer.write("id=" + "$id" + ", ");
     buffer.write("emaild_id=" + "$_emaild_id" + ", ");
     buffer.write("contact_no=" + "$_contact_no" + ", ");
+    buffer.write("members=" + "$_members" + ", ");
     buffer.write("createdAt=" + (_createdAt != null ? _createdAt!.format() : "null") + ", ");
     buffer.write("updatedAt=" + (_updatedAt != null ? _updatedAt!.format() : "null"));
     buffer.write("}");
@@ -124,7 +123,7 @@ class User extends Model {
     return buffer.toString();
   }
   
-  User copyWith({String? id, String? emaild_id, String? contact_no, List<Member>? members}) {
+  User copyWith({String? id, String? emaild_id, String? contact_no, String? members}) {
     return User._internal(
       id: id ?? this.id,
       emaild_id: emaild_id ?? this.emaild_id,
@@ -136,25 +135,18 @@ class User extends Model {
     : id = json['id'],
       _emaild_id = json['emaild_id'],
       _contact_no = json['contact_no'],
-      _members = json['members'] is List
-        ? (json['members'] as List)
-          .where((e) => e?['serializedData'] != null)
-          .map((e) => Member.fromJson(new Map<String, dynamic>.from(e['serializedData'])))
-          .toList()
-        : null,
+      _members = json['members'],
       _createdAt = json['createdAt'] != null ? TemporalDateTime.fromString(json['createdAt']) : null,
       _updatedAt = json['updatedAt'] != null ? TemporalDateTime.fromString(json['updatedAt']) : null;
   
   Map<String, dynamic> toJson() => {
-    'id': id, 'emaild_id': _emaild_id, 'contact_no': _contact_no, 'members': _members?.map((Member? e) => e?.toJson()).toList(), 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
+    'id': id, 'emaild_id': _emaild_id, 'contact_no': _contact_no, 'members': _members, 'createdAt': _createdAt?.format(), 'updatedAt': _updatedAt?.format()
   };
 
   static final QueryField ID = QueryField(fieldName: "user.id");
   static final QueryField EMAILD_ID = QueryField(fieldName: "emaild_id");
   static final QueryField CONTACT_NO = QueryField(fieldName: "contact_no");
-  static final QueryField MEMBERS = QueryField(
-    fieldName: "members",
-    fieldType: ModelFieldType(ModelFieldTypeEnum.model, ofModelName: (Member).toString()));
+  static final QueryField MEMBERS = QueryField(fieldName: "members");
   static var schema = Model.defineSchema(define: (ModelSchemaDefinition modelSchemaDefinition) {
     modelSchemaDefinition.name = "User";
     modelSchemaDefinition.pluralName = "Users";
@@ -173,11 +165,10 @@ class User extends Model {
       ofType: ModelFieldType(ModelFieldTypeEnum.string)
     ));
     
-    modelSchemaDefinition.addField(ModelFieldDefinition.hasMany(
+    modelSchemaDefinition.addField(ModelFieldDefinition.field(
       key: User.MEMBERS,
       isRequired: false,
-      ofModelName: (Member).toString(),
-      associatedKey: Member.USERMEMBERSID
+      ofType: ModelFieldType(ModelFieldTypeEnum.string)
     ));
     
     modelSchemaDefinition.addField(ModelFieldDefinition.nonQueryField(

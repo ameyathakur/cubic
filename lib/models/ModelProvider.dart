@@ -20,17 +20,15 @@
 // ignore_for_file: public_member_api_docs, file_names, unnecessary_new, prefer_if_null_operators, prefer_const_constructors, slash_for_doc_comments, annotate_overrides, non_constant_identifier_names, unnecessary_string_interpolations, prefer_adjacent_string_concatenation, unnecessary_const, dead_code
 
 import 'package:amplify_core/amplify_core.dart';
-import 'Member.dart';
 import 'User.dart';
 
-export 'Member.dart';
 export 'User.dart';
 
 class ModelProvider implements ModelProviderInterface {
   @override
-  String version = "13bc00b0fdbc6b98b8f4e5e9ac035295";
+  String version = "796689c685636d79920fa95a57f8e5ce";
   @override
-  List<ModelSchema> modelSchemas = [Member.schema, User.schema];
+  List<ModelSchema> modelSchemas = [User.schema];
   static final ModelProvider _instance = ModelProvider();
   @override
   List<ModelSchema> customTypeSchemas = [];
@@ -39,8 +37,6 @@ class ModelProvider implements ModelProviderInterface {
   
   ModelType getModelTypeByModelName(String modelName) {
     switch(modelName) {
-      case "Member":
-        return Member.classType;
       case "User":
         return User.classType;
       default:

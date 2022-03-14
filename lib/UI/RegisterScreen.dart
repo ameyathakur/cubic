@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:cubic/UI/MainScreen.dart';
@@ -9,15 +11,20 @@ import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
 import '../amplifyconfiguration.dart';
+import '../models/Member.dart';
 import '../models/ModelProvider.dart';
 
 TextEditingController email = new TextEditingController(),
     contact = new TextEditingController();
 
-List nameControllers = <TextEditingController>[],
-    genderControllers = <TextEditingController>[],
-    dobControllers = <TextEditingController>[],
-    adharControllers = <TextEditingController>[];
+List<TextEditingController> namescontroller =
+    List.generate(2, (i) => TextEditingController());
+List<TextEditingController> gendercontroller =
+    List.generate(2, (i) => TextEditingController());
+List<TextEditingController> dobcontroller =
+    List.generate(2, (i) => TextEditingController());
+List<TextEditingController> adharscontroller =
+    List.generate(2, (i) => TextEditingController());
 
 String dob = "";
 
@@ -36,7 +43,7 @@ List<String> genders = <String>[
   'Prefer not to say'
 ];
 
-List selectedGenders = <String>[];
+List selectedGenders = List.generate(10, (i) => String);
 
 String selectedValue = 'Select Gender';
 
@@ -79,7 +86,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               borderRadius: BorderRadius.circular(7)),
                           child: Center(
                             child: TextField(
-                              controller: nameControllers[0],
+                              controller: namescontroller[0],
                               showCursor: false,
                               decoration: InputDecoration(
                                   contentPadding: EdgeInsets.only(left: 10.0),
@@ -177,7 +184,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     borderRadius: BorderRadius.circular(7)),
                                 child: Center(
                                   child: TextField(
-                                    controller: nameControllers[0],
+                                    controller: dobcontroller[0],
                                     showCursor: false,
                                     decoration: InputDecoration(
                                         contentPadding:
@@ -195,8 +202,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                               pickedDate.toString());
                                           var formattedDate =
                                               "${date.day}-${date.month}-${date.year}";
-                                          dobControllers[0].text =
-                                              formattedDate;
+                                          dobcontroller[0].text = formattedDate;
                                           dob = formattedDate;
                                         });
                                       });
@@ -216,7 +222,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               borderRadius: BorderRadius.circular(7)),
                           child: Center(
                             child: TextField(
-                              controller: nameControllers[0],
+                              controller: adharscontroller[0],
                               showCursor: false,
                               decoration: InputDecoration(
                                   contentPadding: EdgeInsets.only(left: 10.0),
@@ -252,7 +258,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                   BorderRadius.circular(7)),
                                           child: Center(
                                             child: TextField(
-                                              controller: nameControllers.last,
+                                              controller: namescontroller.last,
                                               showCursor: false,
                                               decoration: InputDecoration(
                                                   contentPadding:
@@ -275,7 +281,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                   BorderRadius.circular(7)),
                                           child: Center(
                                             child: TextField(
-                                              controller: nameControllers.last,
+                                              controller: namescontroller.last,
                                               showCursor: false,
                                               decoration: InputDecoration(
                                                   contentPadding:
@@ -312,7 +318,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                 child: Center(
                                                   child: TextField(
                                                     controller:
-                                                        dobControllers.last,
+                                                        dobcontroller.last,
                                                     showCursor: false,
                                                     decoration: InputDecoration(
                                                         contentPadding:
@@ -336,7 +342,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                                   .toString());
                                                           var formattedDate =
                                                               "${date.day}-${date.month}-${date.year}";
-                                                          dobControllers
+                                                          dobcontroller
                                                                   .last.text =
                                                               formattedDate;
                                                           dob = formattedDate;
@@ -441,23 +447,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               try {
                                 List membersList = <Member>[];
                                 for (int i = 0;
-                                    i < nameControllers.length;
+                                    i < namescontroller.length;
                                     i++) {
                                   Member member = Member(
-                                      id: 'ksmksmsk',
-                                      name: nameControllers[i].toString(),
-                                      gender: genderControllers[i].toString(),
-                                      dob: dobControllers[i].toString(),
-                                      adhar_no: adharControllers[i].toString());
+                                      id: 'member $i',
+                                      name: namescontroller[i].text.toString(),
+                                      gender: selectedGenders[i].toString(),
+                                      dob: dobcontroller[i].text.toString(),
+                                      adhar_no:
+                                          adharscontroller[i].text.toString());
                                   membersList.add(member);
                                 }
+                                var json = jsonEncode(membersList
+                                    .map((e) => e.toJson())
+                                    .toList());
 
+                                print("amey $json");
                                 User user = User(
-                                    id: 'nsdhjsnbdjdnjd',
+                                    id: namescontroller[0].text,
                                     emaild_id: email.text,
                                     contact_no: contact.text,
-                                    members: List<Member>.from(membersList
-                                        .where((i) => i.flag == true)));
+                                    members: json);
                                 final request = ModelMutations.create(user);
                                 final response = await Amplify.API
                                     .mutate(request: request)
