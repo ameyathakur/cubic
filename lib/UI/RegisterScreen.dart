@@ -1,40 +1,31 @@
 import 'dart:convert';
+import 'dart:core';
+import 'dart:core';
 
 import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
+import 'package:cubic/Custom%20Models/MemberModel.dart';
 import 'package:cubic/UI/MainScreen.dart';
 import 'package:cubic/UI/PaymentScreen.dart';
 import 'package:cubic/Widgets/Button.dart';
+import 'package:cubic/Widgets/FamilyMember.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'package:dropdown_button2/dropdown_button2.dart';
 
 import '../amplifyconfiguration.dart';
-import '../models/Member.dart';
+
 import '../models/ModelProvider.dart';
 
 TextEditingController email = new TextEditingController(),
     contact = new TextEditingController();
 
-List<TextEditingController> namescontroller =
-    List.generate(2, (i) => TextEditingController());
-List<TextEditingController> gendercontroller =
-    List.generate(2, (i) => TextEditingController());
-List<TextEditingController> dobcontroller =
-    List.generate(2, (i) => TextEditingController());
-List<TextEditingController> adharscontroller =
-    List.generate(2, (i) => TextEditingController());
+
 
 String dob = "";
 
 var widgets = <Widget>[];
-
-var oneVisibility = false,
-    twoVisibility = false,
-    threeVisibility = false,
-    fourVisibility = false,
-    fiveVisibility = false;
 
 List<String> genders = <String>[
   'Select Gender',
@@ -43,9 +34,8 @@ List<String> genders = <String>[
   'Prefer not to say'
 ];
 
-List selectedGenders = List.generate(10, (i) => String);
+String selectedGender = 'Select Gender';
 
-String selectedValue = 'Select Gender';
 
 TextStyle defaultStyle = TextStyle(color: Colors.black);
 TextStyle linkStyle = TextStyle(color: const Color(0XFF0000FF));
@@ -58,8 +48,26 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  List<FamilyMember> members = [];
+
+
+  var namecontroller = TextEditingController();
+  var dobcontroller = TextEditingController();
+  var adharcontroller = TextEditingController();
+  var relationcontroller = TextEditingController();
+
+
   @override
   Widget build(BuildContext context) {
+
+    MemberModel firstModel = new MemberModel(
+        name: namecontroller.text.toString(),
+        relation: "Self",
+        adhar: adharcontroller.text.toString(),
+        gender: selectedGender,
+        dob: dobcontroller.text.toString());
+
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
@@ -86,26 +94,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               borderRadius: BorderRadius.circular(7)),
                           child: Center(
                             child: TextField(
-                              controller: namescontroller[0],
-                              showCursor: false,
-                              decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.only(left: 10.0),
-                                  hintText: 'Name',
-                                  border: InputBorder.none),
-                            ),
-                          )),
-                      Container(
-                          margin: EdgeInsets.only(left: 20, right: 20, top: 20),
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              border:
-                                  Border.all(color: Colors.black, width: 1.5),
-                              borderRadius: BorderRadius.circular(7)),
-                          child: Center(
-                            child: TextField(
                               controller: contact,
-                              showCursor: false,
                               decoration: InputDecoration(
                                   contentPadding: EdgeInsets.only(left: 10.0),
                                   hintText: 'Contact No.',
@@ -123,294 +112,156 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: Center(
                             child: TextField(
                               controller: email,
-                              showCursor: false,
                               decoration: InputDecoration(
                                   contentPadding: EdgeInsets.only(left: 10.0),
                                   hintText: 'Email id',
                                   border: InputBorder.none),
                             ),
                           )),
-                      Container(
-                        margin: EdgeInsets.only(left: 20, right: 20, top: 20),
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(color: Colors.black, width: 1.5),
-                            borderRadius: BorderRadius.circular(7)),
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 10, right: 10),
-                          child: DropdownButtonHideUnderline(
-                              child: DropdownButton2(
-                                  hint: Text(
-                                    'Select Item',
-                                  ),
-                                  items: genders
-                                      .map((item) => DropdownMenuItem<String>(
-                                            value: item,
-                                            child: Text(
-                                              item,
-                                              style: const TextStyle(
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                          ))
-                                      .toList(),
-                                  value: selectedValue,
-                                  onChanged: (String? newValue) {
-                                    setState(() {
-                                      selectedGenders[0];
-                                    });
-                                  })),
-                        ),
-                      ),
-                      Row(
+                      Column(
                         children: [
-                          Padding(
-                            padding: EdgeInsets.all(20),
-                            child: Text(
-                              'Date of Birth',
-                              style: TextStyle(fontSize: 18.0),
+                          Container(
+                              margin:
+                                  EdgeInsets.only(left: 20, right: 20, top: 20),
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                      color: Colors.black, width: 1.5),
+                                  borderRadius: BorderRadius.circular(7)),
+                              child: Center(
+                                child: TextField(
+                                  controller: namecontroller,
+
+                                  decoration: InputDecoration(
+                                      contentPadding:
+                                          EdgeInsets.only(left: 10.0),
+                                      hintText: 'Name',
+                                      border: InputBorder.none),
+                                ),
+                              )),
+                          Container(
+                            margin:
+                                EdgeInsets.only(left: 20, right: 20, top: 20),
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                border:
+                                    Border.all(color: Colors.black, width: 1.5),
+                                borderRadius: BorderRadius.circular(7)),
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 10, right: 10),
+                              child: DropdownButtonHideUnderline(
+                                  child: DropdownButton2(
+                                      hint: Text(
+                                        'Select Item',
+                                      ),
+                                      items: genders
+                                          .map((item) =>
+                                              DropdownMenuItem<String>(
+                                                value: item,
+                                                child: Text(
+                                                  item,
+                                                  style: const TextStyle(
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ))
+                                          .toList(),
+                                      value: selectedGender,
+                                      onChanged: (String? newValue) {
+                                        setState(() {
+                                          selectedGender = newValue!;
+                                        });
+
+                                      })),
                             ),
                           ),
-                          Flexible(
-                            child: Container(
-                                margin: EdgeInsets.only(
-                                    left: 20, right: 20, top: 20),
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border: Border.all(
-                                        color: Colors.black, width: 1.5),
-                                    borderRadius: BorderRadius.circular(7)),
-                                child: Center(
-                                  child: TextField(
-                                    controller: dobcontroller[0],
-                                    showCursor: false,
-                                    decoration: InputDecoration(
-                                        contentPadding:
-                                            EdgeInsets.only(left: 10.0),
-                                        border: InputBorder.none),
-                                    onTap: () {
-                                      showDatePicker(
-                                        context: context,
-                                        initialDate: DateTime.now(),
-                                        firstDate: DateTime(1900, 1),
-                                        lastDate: DateTime.now(),
-                                      ).then((pickedDate) {
-                                        setState(() {
-                                          var date = DateTime.parse(
-                                              pickedDate.toString());
-                                          var formattedDate =
-                                              "${date.day}-${date.month}-${date.year}";
-                                          dobcontroller[0].text = formattedDate;
-                                          dob = formattedDate;
-                                        });
-                                      });
-                                    },
-                                  ),
-                                )),
-                          )
+                          Row(
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.all(20),
+                                child: Text(
+                                  'Date of Birth',
+                                  style: TextStyle(fontSize: 18.0),
+                                ),
+                              ),
+                              Flexible(
+                                child: Container(
+                                    margin: EdgeInsets.only(
+                                        left: 20, right: 20, top: 20),
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        border: Border.all(
+                                            color: Colors.black, width: 1.5),
+                                        borderRadius: BorderRadius.circular(7)),
+                                    child: Center(
+                                      child: TextField(
+                                        controller: dobcontroller,
+                                        decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 10.0),
+                                            border: InputBorder.none),
+                                        onTap: () {
+                                          showDatePicker(
+                                            context: context,
+                                            initialDate: DateTime.now(),
+                                            firstDate: DateTime(1900, 1),
+                                            lastDate: DateTime.now(),
+                                          )
+                                          .then((pickedDate) {
+                                            setState(() {
+                                              var date = DateTime.parse(
+                                                  pickedDate.toString());
+                                              var formattedDate =
+                                                  "${date.day}-${date.month}-${date.year}";
+                                              dobcontroller.text = formattedDate;
+                                              dob = formattedDate;
+                                            });
+                                          });
+                                        },
+                                      ),
+                                    )),
+                              )
+                            ],
+                          ),
+                          Container(
+                              margin:
+                                  EdgeInsets.only(left: 20, right: 20, top: 20),
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  border: Border.all(
+                                      color: Colors.black, width: 1.5),
+                                  borderRadius: BorderRadius.circular(7)),
+                              child: Center(
+                                child: TextField(
+                                  controller: adharcontroller,
+                                  decoration: InputDecoration(
+                                      contentPadding:
+                                          EdgeInsets.only(left: 10.0),
+                                      hintText: 'Aadhar No.',
+                                      border: InputBorder.none),
+                                ),
+                              ))
                         ],
                       ),
-                      Container(
-                          margin: EdgeInsets.only(left: 20, right: 20, top: 20),
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              border:
-                                  Border.all(color: Colors.black, width: 1.5),
-                              borderRadius: BorderRadius.circular(7)),
-                          child: Center(
-                            child: TextField(
-                              controller: adharscontroller[0],
-                              showCursor: false,
-                              decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.only(left: 10.0),
-                                  hintText: 'Aadhar No.',
-                                  border: InputBorder.none),
-                            ),
-                          )),
-                      Padding(
-                          padding: EdgeInsets.only(top: 20),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: widgets,
-                          )),
+                      ListView.builder(
+                        physics: ScrollPhysics(),
+                        scrollDirection: Axis.vertical,
+                        shrinkWrap: true,
+                        addAutomaticKeepAlives: true,
+                        itemCount: members.length,
+                        itemBuilder: (_, i) => members[i],
+                      ),
                       Padding(
                           padding: EdgeInsets.all(15),
                           child: Align(
                             alignment: Alignment.centerRight,
                             child: TextButton(
                                 onPressed: () {
-                                  setState(() {
-                                    widgets.add(Column(children: [
-                                      Container(
-                                          margin: EdgeInsets.only(
-                                              left: 20, right: 20),
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              border: Border.all(
-                                                  color: Colors.black,
-                                                  width: 1.5),
-                                              borderRadius:
-                                                  BorderRadius.circular(7)),
-                                          child: Center(
-                                            child: TextField(
-                                              controller: namescontroller.last,
-                                              showCursor: false,
-                                              decoration: InputDecoration(
-                                                  contentPadding:
-                                                      EdgeInsets.only(
-                                                          left: 10.0),
-                                                  hintText: 'Name',
-                                                  border: InputBorder.none),
-                                            ),
-                                          )),
-                                      Container(
-                                          margin: EdgeInsets.only(
-                                              left: 20, right: 20, top: 20),
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              border: Border.all(
-                                                  color: Colors.black,
-                                                  width: 1.5),
-                                              borderRadius:
-                                                  BorderRadius.circular(7)),
-                                          child: Center(
-                                            child: TextField(
-                                              controller: namescontroller.last,
-                                              showCursor: false,
-                                              decoration: InputDecoration(
-                                                  contentPadding:
-                                                      EdgeInsets.only(
-                                                          left: 10.0),
-                                                  hintText: 'Relation',
-                                                  border: InputBorder.none),
-                                            ),
-                                          )),
-                                      Row(
-                                        children: [
-                                          Padding(
-                                            padding: EdgeInsets.all(20),
-                                            child: Text(
-                                              'Date of Birth',
-                                              style: TextStyle(fontSize: 18.0),
-                                            ),
-                                          ),
-                                          Flexible(
-                                            child: Container(
-                                                margin: EdgeInsets.only(
-                                                    left: 20,
-                                                    right: 20,
-                                                    top: 20),
-                                                width: double.infinity,
-                                                decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    border: Border.all(
-                                                        color: Colors.black,
-                                                        width: 1.5),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            7)),
-                                                child: Center(
-                                                  child: TextField(
-                                                    controller:
-                                                        dobcontroller.last,
-                                                    showCursor: false,
-                                                    decoration: InputDecoration(
-                                                        contentPadding:
-                                                            EdgeInsets.only(
-                                                                left: 10.0),
-                                                        border:
-                                                            InputBorder.none),
-                                                    onTap: () {
-                                                      showDatePicker(
-                                                        context: context,
-                                                        initialDate:
-                                                            DateTime.now(),
-                                                        firstDate:
-                                                            DateTime(1900, 1),
-                                                        lastDate:
-                                                            DateTime.now(),
-                                                      ).then((pickedDate) {
-                                                        setState(() {
-                                                          var date = DateTime
-                                                              .parse(pickedDate
-                                                                  .toString());
-                                                          var formattedDate =
-                                                              "${date.day}-${date.month}-${date.year}";
-                                                          dobcontroller
-                                                                  .last.text =
-                                                              formattedDate;
-                                                          dob = formattedDate;
-                                                        });
-                                                      });
-                                                    },
-                                                  ),
-                                                )),
-                                          )
-                                        ],
-                                      ),
-                                      Container(
-                                        margin: EdgeInsets.only(
-                                            left: 20, right: 20, top: 20),
-                                        width: double.infinity,
-                                        decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            border: Border.all(
-                                                color: Colors.black,
-                                                width: 1.5),
-                                            borderRadius:
-                                                BorderRadius.circular(7)),
-                                        child: Padding(
-                                          padding: EdgeInsets.only(
-                                              left: 10, right: 10),
-                                          child: DropdownButtonHideUnderline(
-                                              child: DropdownButton2(
-                                                  hint: Text(
-                                                    'Select Item',
-                                                  ),
-                                                  items: genders
-                                                      .map((item) =>
-                                                          DropdownMenuItem<
-                                                              String>(
-                                                            value: item,
-                                                            child: Text(
-                                                              item,
-                                                              style:
-                                                                  const TextStyle(
-                                                                fontSize: 14,
-                                                              ),
-                                                            ),
-                                                          ))
-                                                      .toList(),
-                                                  value: selectedValue,
-                                                  onChanged:
-                                                      (String? newValue) {
-                                                    setState(() {
-                                                      selectedGenders
-                                                          .add(newValue);
-                                                    });
-                                                  })),
-                                        ),
-                                      ),
-                                      Align(
-                                          alignment: Alignment.centerRight,
-                                          child: IconButton(
-                                              padding: EdgeInsets.fromLTRB(
-                                                  0, 10, 10, 20),
-                                              color: Colors.red,
-                                              onPressed: () {
-                                                setState(() {
-                                                  widgets.removeLast();
-                                                });
-                                              },
-                                              icon: Icon(Icons.delete)))
-                                    ]));
-                                  });
+                                  onAddForm();
                                 },
                                 child: Text('Add Family Member',
                                     style: TextStyle(fontSize: 16.0))),
@@ -444,45 +295,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             }
 
                             try {
-                              try {
-                                List membersList = <Member>[];
-                                for (int i = 0;
-                                    i < namescontroller.length;
-                                    i++) {
-                                  Member member = Member(
-                                      id: 'member $i',
-                                      name: namescontroller[i].text.toString(),
-                                      gender: selectedGenders[i].toString(),
-                                      dob: dobcontroller[i].text.toString(),
-                                      adhar_no:
-                                          adharscontroller[i].text.toString());
-                                  membersList.add(member);
-                                }
-                                var json = jsonEncode(membersList
-                                    .map((e) => e.toJson())
-                                    .toList());
+                              List data = <MemberModel>[];
+                              data.add(firstModel);
 
-                                print("amey $json");
-                                User user = User(
-                                    id: namescontroller[0].text,
-                                    emaild_id: email.text,
-                                    contact_no: contact.text,
-                                    members: json);
-                                final request = ModelMutations.create(user);
-                                final response = await Amplify.API
-                                    .mutate(request: request)
-                                    .response;
-
-                                User? createdUser = response.data;
-                                if (createdUser == null) {
-                                  print(
-                                      'errors: ' + response.errors.toString());
-                                  return;
-                                }
-                                print('Mutation result: ' + createdUser.id);
-                              } on ApiException catch (e) {
-                                print('Mutation failed: $e');
+                              for(int i=0; i<members.length; i++){
+                                data.add(members[i].memberModel);
                               }
+
+                              var json = jsonEncode(
+                                  data.map((e) => e.toJson()).toList());
+
+                              print("amey $json");
+                              User user = User(
+                                  id: contact.text,
+                                  emaild_id: email.text,
+                                  contact_no: contact.text,
+                                  members: json);
+                              final request = ModelMutations.create(user);
+                              final response = await Amplify.API
+                                  .mutate(request: request)
+                                  .response;
+
+                              User? createdUser = response.data;
+                              if (createdUser == null) {
+                                print('errors: ' + response.errors.toString());
+                                return;
+                              }
+                              print('Mutation result: ' + createdUser.id);
+                            } on ApiException catch (e) {
+                              print('Mutation failed: $e');
                             } on AmplifyAlreadyConfiguredException {
                               print(
                                   "Tried to reconfigure Amplify; this can occur when your app restarts on Android.");
@@ -501,5 +342,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ],
       ),
     );
+  }
+
+  // void addMemberFields() {
+  //
+  //     TextEditingController nameController = TextEditingController(),
+  //         genderController = TextEditingController(),
+  //         dobController = TextEditingController(),
+  //         adharController = TextEditingController();
+  //
+  //
+  //     setState(() {
+
+  void onDelete(MemberModel memberModel) {
+    setState(() {
+      var find = members.firstWhere(
+        (it) => it.memberModel == memberModel,
+      );
+      members.removeAt(members.indexOf(find));
+    });
+  }
+
+  void onAddForm() {
+    setState(() {
+      var _member = MemberModel();
+      members.add(FamilyMember(
+          memberModel: _member, onDelete: () => onDelete(_member)));
+    });
   }
 }

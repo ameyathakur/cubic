@@ -1,3 +1,4 @@
+import 'package:cubic/UI/UserProfile.dart';
 import 'package:cubic/UI/documentDetails.dart';
 import 'package:cubic/Widgets/Button.dart';
 import 'package:flutter/material.dart';
@@ -94,12 +95,15 @@ class MainScreen extends StatelessWidget {
                 child: Text('Drawer Header'),
               ),
               ListTile(
-                title: const Text('Item 1'),
+                title: const Text('Profile'),
                 onTap: () {
                   // Update the state of the app
                   // ...
                   // Then close the drawer
-                  Navigator.pop(context);
+                  Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              UserProfile()));
                 },
               ),
               ListTile(

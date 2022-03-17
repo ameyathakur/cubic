@@ -37,6 +37,10 @@ dependencies:
   intl_phone_field: ^3.0.1
   amplify_flutter: ^0.4.0
   amplify_api: ^0.4.0
+
+  flutter_lints: ^1.0.0
+  dropdown_button2: ^1.2.0
+  timer_count_down: ^2.2.1
   
 
 dev_dependencies:
