@@ -29,31 +29,35 @@ class _UserProfileState extends State<UserProfile> {
     _configureAmplify();
   }
 
-  void _configureAmplify() async {
+  void _configureAmplify() async{
     // Add the following line to add API plugin to your app
 
-    try {
-      final getUser = ModelQueries.get(User.classType, '8766896763');
-      final userResponse = await Amplify.API.query(request: getUser).response;
-      User? user = userResponse.data;
-      if (user == null) {
-        print('errors: ' + userResponse.errors.toString());
+
+      try {
+        final getUser = await ModelQueries.get(User.classType, '8766896763');
+        final userResponse = await Amplify.API.query(request: getUser).response;
+        User? user = userResponse.data;
+        if (user == null) {
+          print('errors: ' + userResponse.errors.toString());
+        }
+
+        setState(() {
+
+
+        email = user!.emaild_id;
+        contact = user.contact_no;
+
+        String? membes = user.members;
+
+        subusers = jsonDecode(membes!);
+
+        Iterable l = json.decode(membes);
+        membersi = List<MemberModel>.from(
+            l.map((model) => MemberModel.fromJson(model)));
+        });
+      } on ApiException catch (e) {
+        print('Query failed: $e');
       }
-
-      email = user!.emaild_id;
-      contact = user.contact_no;
-
-      String? membes = user.members;
-
-      subusers = jsonDecode(membes!);
-
-      membersi = subusers.cast<MemberModel>();
-
-      print("Sarita " + membersi.toString());
-
-    } on ApiException catch (e) {
-      print('Query failed: $e');
-    }
   }
 
   @override
@@ -137,38 +141,68 @@ class _UserProfileState extends State<UserProfile> {
                 ),
               ),
               ListView.builder(
+                  padding: EdgeInsets.all(10),
                   physics: ScrollPhysics(),
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
                   itemCount: membersi.length,
                   itemBuilder: (BuildContext context, int index) {
                     return Column(children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text('Member ' + (index + 1).toString())),
+                          Expanded(
+                              child: Align(
+                            alignment: Alignment.centerRight,
+                            child: IconButton(
+                                onPressed: () {}, icon: Icon(Icons.delete)),
+                          ))
+                        ],
+                      ),
                       Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text('Member ' + (index + 1).toString())),
-                      // Row(
-                      //   children: [
-                      //     Container(
-                      //       width: 100,
-                      //       child: Text(
-                      //         'Name',
-                      //         style: TextStyle(
-                      //             color: const Color(0xFF827E7E), fontSize: 18),
-                      //       ),
-                      //     ),
-                      //     Container(
-                      //         width: 40,
-                      //         child: Text(
-                      //           ':',
-                      //           style: TextStyle(fontSize: 18),
-                      //         )),
-                      //     Text(
-                      //       membersi[index].name,
-                      //       style: TextStyle(fontSize: 18),
-                      //     ),
-                      //   ],
-                      // ),
-
+                        alignment: Alignment.centerLeft,
+                        child: Row(
+                          children: [
+                            Text(
+                              membersi[index].name,
+                              style: TextStyle(fontSize: 18),
+                            ),
+                            Expanded(
+                                child: Align(
+                              alignment: Alignment.centerRight,
+                              child: Padding(
+                                  padding: EdgeInsets.only(right: 15),
+                                  child: Text(
+                                    membersi[index].gender[0],
+                                    style: TextStyle(fontSize: 18),
+                                  )),
+                            ))
+                          ],
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Row(
+                          children: [
+                            membersi[index].adhar != ''
+                                ? Text(membersi[index].adhar)
+                                : Text(membersi[index].relation),
+                            Expanded(
+                                child: Align(
+                              alignment: Alignment.centerRight,
+                              child: Padding(
+                                  padding: EdgeInsets.only(right: 15),
+                                  child: Text(
+                                    membersi[index].dob,
+                                    style: TextStyle(fontSize: 18),
+                                  )),
+                            ))
+                          ],
+                        ),
+                      ),
                     ]);
                   })
             ],
