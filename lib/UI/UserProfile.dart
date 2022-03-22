@@ -29,21 +29,18 @@ class _UserProfileState extends State<UserProfile> {
     _configureAmplify();
   }
 
-  void _configureAmplify() async{
+  void _configureAmplify() async {
     // Add the following line to add API plugin to your app
 
+    try {
+      final getUser = await ModelQueries.get(User.classType, '8766896763');
+      final userResponse = await Amplify.API.query(request: getUser).response;
+      User? user = userResponse.data;
+      if (user == null) {
+        print('errors: ' + userResponse.errors.toString());
+      }
 
-      try {
-        final getUser = await ModelQueries.get(User.classType, '8766896763');
-        final userResponse = await Amplify.API.query(request: getUser).response;
-        User? user = userResponse.data;
-        if (user == null) {
-          print('errors: ' + userResponse.errors.toString());
-        }
-
-        setState(() {
-
-
+      setState(() {
         email = user!.emaild_id;
         contact = user.contact_no;
 
@@ -54,10 +51,12 @@ class _UserProfileState extends State<UserProfile> {
         Iterable l = json.decode(membes);
         membersi = List<MemberModel>.from(
             l.map((model) => MemberModel.fromJson(model)));
-        });
-      } on ApiException catch (e) {
-        print('Query failed: $e');
-      }
+
+
+      });
+    } on ApiException catch (e) {
+      print('Query failed: $e');
+    }
   }
 
   @override
@@ -146,64 +145,82 @@ class _UserProfileState extends State<UserProfile> {
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
                   itemCount: membersi.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Column(children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text('Member ' + (index + 1).toString())),
-                          Expanded(
-                              child: Align(
-                            alignment: Alignment.centerRight,
-                            child: IconButton(
-                                onPressed: () {}, icon: Icon(Icons.delete)),
-                          ))
-                        ],
-                      ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Row(
+                  itemBuilder: (BuildContext context, int index)
+                  {
+                    return
+                      Column(children: [
+                        Row(
+                          mainAxisSize: MainAxisSize.max,
                           children: [
-                            Text(
-                              membersi[index].name,
-                              style: TextStyle(fontSize: 18),
-                            ),
+                            Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text('Member ' + (index + 1).toString())),
                             Expanded(
                                 child: Align(
-                              alignment: Alignment.centerRight,
-                              child: Padding(
-                                  padding: EdgeInsets.only(right: 15),
-                                  child: Text(
-                                    membersi[index].gender[0],
-                                    style: TextStyle(fontSize: 18),
-                                  )),
-                            ))
+                                  alignment: Alignment.centerRight,
+                                  child: IconButton(
+                                      onPressed: () async {
+
+                                        membersi.removeAt(index);
+                                        var json = jsonEncode(
+                                            membersi.map((e) => e.toJson()).toList());
+
+                                        User user = User(
+                                            id: '8766896763',
+                                            emaild_id: email,
+                                            contact_no: contact,
+                                            members: json);
+
+                                        final request = ModelMutations.update(user);
+                                        final response = await Amplify.API.mutate(request: request).response;
+
+                  _configureAmplify();
+                                      }, icon: Icon(Icons.delete)),
+                                ))
                           ],
                         ),
-                      ),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: Row(
-                          children: [
-                            membersi[index].adhar != ''
-                                ? Text(membersi[index].adhar)
-                                : Text(membersi[index].relation),
-                            Expanded(
-                                child: Align(
-                              alignment: Alignment.centerRight,
-                              child: Padding(
-                                  padding: EdgeInsets.only(right: 15),
-                                  child: Text(
-                                    membersi[index].dob,
-                                    style: TextStyle(fontSize: 18),
-                                  )),
-                            ))
-                          ],
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Row(
+                            children: [
+                              Text(
+                                membersi[index].name,
+                                style: TextStyle(fontSize: 18),
+                              ),
+                              Expanded(
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Padding(
+                                        padding: EdgeInsets.only(right: 15),
+                                        child: Text(
+                                          membersi[index].gender[0],
+                                          style: TextStyle(fontSize: 18),
+                                        )),
+                                  ))
+                            ],
+                          ),
                         ),
-                      ),
-                    ]);
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Row(
+                            children: [
+                              membersi[index].adhar != ''
+                                  ? Text(membersi[index].adhar)
+                                  : Text(membersi[index].relation),
+                              Expanded(
+                                  child: Align(
+                                    alignment: Alignment.centerRight,
+                                    child: Padding(
+                                        padding: EdgeInsets.only(right: 15),
+                                        child: Text(
+                                          membersi[index].dob,
+                                          style: TextStyle(fontSize: 18),
+                                        )),
+                                  ))
+                            ],
+                          ),
+                        ),
+                      ]);
                   })
             ],
           ),
