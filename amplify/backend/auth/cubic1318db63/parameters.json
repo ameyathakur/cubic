@@ -1,0 +1,26 @@
+{
+  "authSelections": "userPoolOnly",
+  "resourceName": "cubic1318db63",
+  "serviceType": "imported",
+  "region": "us-east-1",
+  "usernameAttributes": [
+    "email",
+    "phone_number"
+  ],
+  "authProvidersUserPool": [
+    "Google"
+  ],
+  "requiredAttributes": [
+    "email",
+    "phone_number"
+  ],
+  "passwordPolicyMinLength": 8,
+  "passwordPolicyCharacters": [
+    "Requires Lowercase",
+    "Requires Uppercase",
+    "Requires Numbers",
+    "Requires Symbols"
+  ],
+  "mfaConfiguration": "OFF",
+  "mfaTypes": []
+}

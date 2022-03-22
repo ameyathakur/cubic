@@ -1,0 +1,31 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-cubic-dev-115914-authRole",
+      "UnauthRoleArn": "arn:aws:iam::301842797106:role/amplify-cubic-dev-115914-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::301842797106:role/amplify-cubic-dev-115914-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-cubic-dev-115914-deployment",
+      "UnauthRoleName": "amplify-cubic-dev-115914-unauthRole",
+      "StackName": "amplify-cubic-dev-115914",
+      "StackId": "arn:aws:cloudformation:us-east-1:301842797106:stack/amplify-cubic-dev-115914/422ce790-9f72-11ec-9f5b-1247845795eb",
+      "AmplifyAppId": "d1ay3croqa1ulm"
+    },
+    "categories": {
+      "auth": {
+        "cubicad627e3b": {
+          "userPoolId": "us-east-1_Jk4qNLAHn",
+          "userPoolName": "cubic",
+          "webClientId": "2fcchqht63ebm0vefddhduckev",
+          "nativeClientId": "2fcchqht63ebm0vefddhduckev"
+        },
+        "cubic1318db63": {
+          "userPoolId": "us-east-1_MXRwkmrwP",
+          "userPoolName": "Cubic_New",
+          "webClientId": "4nakih9abufsgrkhrmfvc9igcb",
+          "nativeClientId": "4nakih9abufsgrkhrmfvc9igcb"
+        }
+      }
+    }
+  }
+}

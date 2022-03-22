@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "serviceConfiguration": {
+    "apiName": "cubic",
+    "serviceName": "AppSync",
+    "gqlSchemaPath": "D:\\cubic-master\\amplify\\backend\\api\\cubic\\schema.graphql",
+    "defaultAuthType": {
+      "mode": "AMAZON_COGNITO_USER_POOLS",
+      "cognitoUserPoolId": "authcubic1318db63"
+    },
+    "conflictResolution": {},
+    "additionalAuthTypes": []
+  }
+}
