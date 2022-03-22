@@ -45,6 +45,12 @@ class _FamilyMemberState extends State<FamilyMember> {
                 borderRadius: BorderRadius.circular(7)),
             child: Center(
               child: TextFormField(
+                validator: (value){
+                  if (value == null || value.isEmpty) {
+                    return 'Please Enter Name';
+                  }
+                  return null;
+                },
                 onChanged: (val) => widget.memberModel.name = val!,
                 decoration: InputDecoration(
                     contentPadding: EdgeInsets.only(left: 10.0),
@@ -162,7 +168,4 @@ class _FamilyMemberState extends State<FamilyMember> {
       ],
       ) )));
   }
-
-
-
 }

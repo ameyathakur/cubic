@@ -21,8 +21,6 @@ import '../models/ModelProvider.dart';
 TextEditingController email = new TextEditingController(),
     contact = new TextEditingController();
 
-
-
 String dob = "";
 
 var widgets = <Widget>[];
@@ -36,7 +34,6 @@ List<String> genders = <String>[
 
 String selectedGender = 'Select Gender';
 
-
 TextStyle defaultStyle = TextStyle(color: Colors.black);
 TextStyle linkStyle = TextStyle(color: const Color(0XFF0000FF));
 
@@ -49,24 +46,21 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   List<FamilyMember> members = [];
-
+  final _formKey = GlobalKey<FormState>();
 
   var namecontroller = TextEditingController();
   var dobcontroller = TextEditingController();
   var adharcontroller = TextEditingController();
   var relationcontroller = TextEditingController();
 
-
   @override
   Widget build(BuildContext context) {
-
     MemberModel firstModel = new MemberModel(
         name: namecontroller.text.toString(),
         relation: "Self",
         adhar: adharcontroller.text.toString(),
         gender: selectedGender,
         dob: dobcontroller.text.toString());
-
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -82,6 +76,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           Expanded(
               child: SingleChildScrollView(
                   padding: EdgeInsets.only(top: 50),
+                child: Form(
+                  key: _formKey,
                   child: Column(
                     children: [
                       Container(
@@ -93,7 +89,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   Border.all(color: Colors.black, width: 1.5),
                               borderRadius: BorderRadius.circular(7)),
                           child: Center(
-                            child: TextField(
+                            child: TextFormField(
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter contact number';
+                                }
+                                return null;
+                              },
                               controller: contact,
                               decoration: InputDecoration(
                                   contentPadding: EdgeInsets.only(left: 10.0),
@@ -110,7 +112,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   Border.all(color: Colors.black, width: 1.5),
                               borderRadius: BorderRadius.circular(7)),
                           child: Center(
-                            child: TextField(
+                            child: TextFormField(
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter Email id';
+                                }
+                                if(!value.contains('@')){
+                                  return 'Email id is invalid';
+                                }
+                                return null;
+                              },
                               controller: email,
                               decoration: InputDecoration(
                                   contentPadding: EdgeInsets.only(left: 10.0),
@@ -130,9 +141,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       color: Colors.black, width: 1.5),
                                   borderRadius: BorderRadius.circular(7)),
                               child: Center(
-                                child: TextField(
+                                child: TextFormField(
                                   controller: namecontroller,
-
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter your name';
+                                    }
+                                    return null;
+                                  },
                                   decoration: InputDecoration(
                                       contentPadding:
                                           EdgeInsets.only(left: 10.0),
@@ -152,7 +168,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             child: Padding(
                               padding: EdgeInsets.only(left: 10, right: 10),
                               child: DropdownButtonHideUnderline(
-                                  child: DropdownButton2(
+                                  child: DropdownButtonFormField2(
+                                    validator: (value){
+                                      if(value == 'Select Item'){
+                                        return 'Please select gender';
+                                      }
+                                    },
                                       hint: Text(
                                         'Select Item',
                                       ),
@@ -173,7 +194,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         setState(() {
                                           selectedGender = newValue!;
                                         });
-
                                       })),
                             ),
                           ),
@@ -197,7 +217,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             color: Colors.black, width: 1.5),
                                         borderRadius: BorderRadius.circular(7)),
                                     child: Center(
-                                      child: TextField(
+                                      child: TextFormField(
+
+                                        validator: (value){
+                                          if (value == null || value.isEmpty) {
+                                            return 'Enter Date of Birth';
+                                          }
+                                          return null;
+                                        },
                                         controller: dobcontroller,
                                         decoration: InputDecoration(
                                             contentPadding:
@@ -209,14 +236,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             initialDate: DateTime.now(),
                                             firstDate: DateTime(1900, 1),
                                             lastDate: DateTime.now(),
-                                          )
-                                          .then((pickedDate) {
+                                          ).then((pickedDate) {
                                             setState(() {
                                               var date = DateTime.parse(
                                                   pickedDate.toString());
                                               var formattedDate =
                                                   "${date.day}-${date.month}-${date.year}";
-                                              dobcontroller.text = formattedDate;
+                                              dobcontroller.text =
+                                                  formattedDate;
                                               dob = formattedDate;
                                             });
                                           });
@@ -286,59 +313,68 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Button(
                           text: 'Register',
                           onPress: () async {
-                            // Add the following line to add API plugin to your app
-                            if (!Amplify.isConfigured) {
-                              Amplify.addPlugin(AmplifyAPI(
-                                  modelProvider: ModelProvider.instance));
+                            if (_formKey.currentState!.validate()) {
+                              // If the form is valid, display a snackbar. In the real world,
+                              // you'd often call a server or save the information in a database.
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Registering')));
 
-                              await Amplify.configure(amplifyconfig);
-                            }
+                                  // Add the following line to add API plugin to your app
+                                  if (!Amplify.isConfigured) {
+                                Amplify.addPlugin(AmplifyAPI(
+                                    modelProvider: ModelProvider.instance));
 
-                            try {
-                              List data = <MemberModel>[];
-                              data.add(firstModel);
-
-                              for(int i=0; i<members.length; i++){
-                                data.add(members[i].memberModel);
+                                await Amplify.configure(amplifyconfig);
                               }
 
-                              var json = jsonEncode(
-                                  data.map((e) => e.toJson()).toList());
+                              try {
+                                List data = <MemberModel>[];
+                                data.add(firstModel);
 
-                              print("amey $json");
-                              User user = User(
-                                  id: contact.text,
-                                  emaild_id: email.text,
-                                  contact_no: contact.text,
-                                  members: json);
-                              final request = ModelMutations.create(user);
-                              final response = await Amplify.API
-                                  .mutate(request: request)
-                                  .response;
+                                for (int i = 0; i < members.length; i++) {
+                                  data.add(members[i].memberModel);
+                                }
 
-                              User? createdUser = response.data;
-                              if (createdUser == null) {
-                                print('errors: ' + response.errors.toString());
-                                return;
+                                var json = jsonEncode(
+                                    data.map((e) => e.toJson()).toList());
+
+                                print("amey $json");
+                                User user = User(
+                                    id: contact.text,
+                                    emaild_id: email.text,
+                                    contact_no: contact.text,
+                                    members: json);
+                                final request = ModelMutations.create(user);
+                                final response = await Amplify.API
+                                    .mutate(request: request)
+                                    .response;
+
+                                User? createdUser = response.data;
+                                if (createdUser == null) {
+                                  print('errors: ' + response.errors.toString());
+                                  return;
+                                }
+                                print('Mutation result: ' + createdUser.id);
+                              } on ApiException catch (e) {
+                                print('Mutation failed: $e');
+                              } on AmplifyAlreadyConfiguredException {
+                                print(
+                                    "Tried to reconfigure Amplify; this can occur when your app restarts on Android.");
                               }
-                              print('Mutation result: ' + createdUser.id);
-                            } on ApiException catch (e) {
-                              print('Mutation failed: $e');
-                            } on AmplifyAlreadyConfiguredException {
-                              print(
-                                  "Tried to reconfigure Amplify; this can occur when your app restarts on Android.");
+
+                              Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          PaymentScreen()));
+
                             }
 
-                            Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) =>
-                                        PaymentScreen()));
                           },
                           color: const Color(0XFF208FEE),
                           borderColor: const Color(0XFF208FEE),
                           textColor: Colors.white)
                     ],
-                  ))),
+                  ))),)
         ],
       ),
     );
@@ -371,5 +407,3 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
   }
 }
-
-
