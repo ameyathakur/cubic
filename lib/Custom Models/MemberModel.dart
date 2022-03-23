@@ -2,9 +2,9 @@
 
 class MemberModel{
   String name, relation, gender, dob, adhar;
-  bool deleted;
+  bool deleted, subscribed;
 
-  MemberModel({this.name = '', this.relation='', this.gender='', this.dob='', this.adhar='', this.deleted = false});
+  MemberModel({this.name = '', this.relation='', this.gender='', this.dob='', this.adhar='', this.deleted = false, this.subscribed = false});
 
   factory MemberModel.fromJson(dynamic json){
   MemberModel p = new MemberModel();
@@ -14,6 +14,7 @@ class MemberModel{
   p.adhar = json['adhar'];
   p.relation = json['relation'];
   p.deleted = json['deleted'];
+  p.subscribed = json['subscribed'];
   return p;
 }
 
@@ -24,6 +25,7 @@ class MemberModel{
     'dob': dob,
     'adhar': adhar,
     'deleted' : deleted,
+    'subscribed' : subscribed,
   };
 
 

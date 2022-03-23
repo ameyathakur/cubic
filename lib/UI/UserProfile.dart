@@ -6,6 +6,7 @@ import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:cubic/Custom%20Models/MemberModel.dart';
 import 'package:cubic/UI/RegisterScreen.dart';
 import 'package:cubic/Widgets/Button.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -22,6 +23,8 @@ class _UserProfileState extends State<UserProfile> {
   String email = '', contact = '';
   List<dynamic> subusers = [];
   List<MemberModel> membersi = [];
+  late User user;
+  TextEditingController dobcontroller = TextEditingController();
 
   @override
   void initState() {
@@ -35,7 +38,7 @@ class _UserProfileState extends State<UserProfile> {
     try {
       final getUser = await ModelQueries.get(User.classType, '8766896763');
       final userResponse = await Amplify.API.query(request: getUser).response;
-      User? user = userResponse.data;
+      user = userResponse.data!;
       if (user == null) {
         print('errors: ' + userResponse.errors.toString());
       }
@@ -51,8 +54,6 @@ class _UserProfileState extends State<UserProfile> {
         Iterable l = json.decode(membes);
         membersi = List<MemberModel>.from(
             l.map((model) => MemberModel.fromJson(model)));
-
-
       });
     } on ApiException catch (e) {
       print('Query failed: $e');
@@ -61,6 +62,7 @@ class _UserProfileState extends State<UserProfile> {
 
   @override
   build(BuildContext context) {
+
     return Scaffold(
         appBar: AppBar(
           iconTheme: IconThemeData(
@@ -145,25 +147,227 @@ class _UserProfileState extends State<UserProfile> {
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
                   itemCount: membersi.length,
-                  itemBuilder: (BuildContext context, int index)
-                  {
-                    return
-                      Column(children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Align(
-                                alignment: Alignment.centerLeft,
-                                child: Text('Member ' + (index + 1).toString())),
-                            Expanded(
-                                child: Align(
-                                  alignment: Alignment.centerRight,
-                                  child: IconButton(
-                                      onPressed: () async {
+                  itemBuilder: (BuildContext context, int index) {
+                    return Column(children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text('Member ' + (index + 1).toString())),
+                          Expanded(
+                            child: Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  IconButton(
+                                      onPressed: () {
+                                        showDialog(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: Text(
+                                                'Update the details of ' + membersi[index].name,
+                                              ),
+                                              content: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Container(
+                                                      margin: EdgeInsets.only(left: 20, right: 20, top: 20),
+                                                      width: double.infinity,
+                                                      decoration: BoxDecoration(
+                                                          color: Colors.white,
+                                                          border: Border.all(color: Colors.black, width: 1.5),
+                                                          borderRadius: BorderRadius.circular(7)),
+                                                      child: Center(
+                                                        child: TextFormField(
+                                                          initialValue: membersi[index].name,
+                                                          // controller: namecontroller,
+                                                          validator: (value) {
+                                                            if (value == null || value.isEmpty) {
+                                                              return 'Please enter your name';
+                                                            }
+                                                            return null;
+                                                          },
+                                                          onChanged: (val){
+                                                            membersi[index].name = val;
+                                                          },
+                                                          decoration: InputDecoration(
+                                                              contentPadding: EdgeInsets.only(left: 10.0),
+                                                              hintText: 'Name',
+                                                              border: InputBorder.none),
+                                                        ),
+                                                      )),
 
+                                                  (index==0) ?
+                                                  Container(
+                                                      margin: EdgeInsets.only(left: 20, right: 20, top: 20),
+                                                      width: double.infinity,
+                                                      decoration: BoxDecoration(
+                                                          color: Colors.white,
+                                                          border: Border.all(color: Colors.black, width: 1.5),
+                                                          borderRadius: BorderRadius.circular(7)),
+                                                      child: Center(
+                                                        child: TextFormField(
+                                                          // controller: adharcontroller,
+                                                          initialValue: membersi[index].adhar,
+                                                          decoration: InputDecoration(
+                                                              contentPadding: EdgeInsets.only(left: 10.0),
+                                                              hintText: 'Aadhar No.',
+                                                              border: InputBorder.none),
+                                                          onChanged: (val){
+                                                            membersi[index].adhar = val;
+                                                          },
+                                                        ),
+                                                      )):
+                                                  Container(
+
+                                                      margin: EdgeInsets.only(left: 20, right: 20, top: 20),
+                                                      width: double.infinity,
+                                                      decoration: BoxDecoration(
+                                                          color: Colors.white,
+                                                          border: Border.all(color: Colors.black, width: 1.5),
+                                                          borderRadius: BorderRadius.circular(7)),
+                                                      child: Center(
+                                                        child: TextFormField(
+                                                          // onChanged: (val) => widget.memberModel.relation = val!,
+                                                          decoration: InputDecoration(
+                                                              contentPadding: EdgeInsets.only(left: 10.0),
+                                                              hintText: 'Relation',
+                                                              border: InputBorder.none),
+                                                          initialValue: membersi[index].relation,
+                                                          onChanged: (val){
+                                                            membersi[index].relation = val;
+                                                          },
+                                                        ),
+                                                      )),
+                                                  Container(
+                                                    margin: EdgeInsets.only(left: 20, right: 20, top: 20),
+                                                    width: double.infinity,
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.white,
+                                                        border: Border.all(color: Colors.black, width: 1.5),
+                                                        borderRadius: BorderRadius.circular(7)),
+                                                    child: Padding(
+                                                      padding: EdgeInsets.only(left: 10, right: 10),
+                                                      child: DropdownButtonHideUnderline(
+                                                          child: DropdownButtonFormField2(
+                                                              validator: (value) {
+                                                                if (value == 'Select Item') {
+                                                                  return 'Please select gender';
+                                                                }
+                                                              },
+                                                              hint: Text(
+                                                                'Select Item',
+                                                              ),
+                                                              items: genders
+                                                                  .map((item) => DropdownMenuItem<String>(
+                                                                value: item,
+                                                                child: Text(
+                                                                  item,
+                                                                  style: const TextStyle(
+                                                                    fontSize: 14,
+                                                                  ),
+                                                                ),
+                                                              ))
+                                                                  .toList(),
+                                                              value: membersi[index].gender,
+                                                              onChanged: (String? newValue) {
+                                                                setState(() {
+                                                                  selectedGender = newValue!;
+                                                                });
+
+                                                                membersi[index].gender = newValue!;
+                                                              })),
+                                                    ),
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      Padding(
+                                                        padding: EdgeInsets.all(20),
+                                                        child: Text(
+                                                          'Date of Birth',
+                                                          style: TextStyle(fontSize: 18.0),
+                                                        ),
+                                                      ),
+                                                      Flexible(
+                                                        child: Container(
+                                                            margin: EdgeInsets.only(left: 20, right: 20, top: 20),
+                                                            width: double.infinity,
+                                                            decoration: BoxDecoration(
+                                                                color: Colors.white,
+                                                                border:
+                                                                Border.all(color: Colors.black, width: 1.5),
+                                                                borderRadius: BorderRadius.circular(7)),
+                                                            child: Center(
+                                                              child: TextFormField(
+                                                                validator: (value) {
+                                                                  if (value == null || value.isEmpty) {
+                                                                    return 'Enter Date of Birth';
+                                                                  }
+                                                                  return null;
+                                                                },
+                                                                controller: dobcontroller,
+                                                                initialValue: membersi[index].dob,
+                                                                decoration: InputDecoration(
+                                                                    contentPadding: EdgeInsets.only(left: 10.0),
+                                                                    border: InputBorder.none),
+                                                                onTap: () {
+                                                                  showDatePicker(
+                                                                    context: context,
+                                                                    initialDate: DateTime.now(),
+                                                                    firstDate: DateTime(1900, 1),
+                                                                    lastDate: DateTime.now(),
+                                                                  ).then((pickedDate) {
+                                                                    setState(() {
+                                                                      var date =
+                                                                      DateTime.parse(pickedDate.toString());
+                                                                      var formattedDate =
+                                                                          "${date.day}-${date.month}-${date.year}";
+
+                                                                      dobcontroller.text = formattedDate;
+
+                                                                      dob = formattedDate;
+                                                                    });
+                                                                    membersi[index].dob = dob;
+                                                                  });
+                                                                },
+                                                              ),
+                                                            )),
+                                                      )
+                                                    ],
+                                                  ),
+
+                                                  Padding(padding: EdgeInsets.only(top:20), child:
+                                                  Button(text: 'Update', onPress: () async {
+                                                    var json = jsonEncode(membersi
+                                                        .map((e) => e.toJson())
+                                                        .toList());
+
+                                                    User newuser = user.copyWith(members: json);
+
+                                                    final request =
+                                                    ModelMutations.update(newuser);
+                                                    final response = await Amplify.API
+                                                        .mutate(request: request)
+                                                        .response;
+
+                                                    _configureAmplify();
+
+                                                    Navigator.of(context, rootNavigator: true).pop();
+                                                  }, color: new Color(0xFF208FEE), borderColor: new Color(0xFF208FEE), textColor: Colors.white),
+                                                  )
+                                                ],
+                                              ),
+                                            ));
+
+                                        _configureAmplify();
+                                      },
+                                      icon: Icon(Icons.edit)),
+                                  IconButton(
+                                      onPressed: () async {
                                         membersi.removeAt(index);
-                                        var json = jsonEncode(
-                                            membersi.map((e) => e.toJson()).toList());
+                                        var json = jsonEncode(membersi
+                                            .map((e) => e.toJson())
+                                            .toList());
 
                                         User user = User(
                                             id: '8766896763',
@@ -171,56 +375,61 @@ class _UserProfileState extends State<UserProfile> {
                                             contact_no: contact,
                                             members: json);
 
-                                        final request = ModelMutations.update(user);
-                                        final response = await Amplify.API.mutate(request: request).response;
+                                        final request =
+                                            ModelMutations.update(user);
+                                        final response = await Amplify.API
+                                            .mutate(request: request)
+                                            .response;
 
-                  _configureAmplify();
-                                      }, icon: Icon(Icons.delete)),
-                                ))
+                                        _configureAmplify();
+                                      },
+                                      icon: Icon(Icons.delete)),
+                                ]),
+                          )
+                        ],
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Row(
+                          children: [
+                            Text(
+                              membersi[index].name,
+                              style: TextStyle(fontSize: 18),
+                            ),
+                            Expanded(
+                                child: Align(
+                              alignment: Alignment.centerRight,
+                              child: Padding(
+                                  padding: EdgeInsets.only(right: 15),
+                                  child: Text(
+                                    membersi[index].gender[0],
+                                    style: TextStyle(fontSize: 18),
+                                  )),
+                            ))
                           ],
                         ),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Row(
-                            children: [
-                              Text(
-                                membersi[index].name,
-                                style: TextStyle(fontSize: 18),
-                              ),
-                              Expanded(
-                                  child: Align(
-                                    alignment: Alignment.centerRight,
-                                    child: Padding(
-                                        padding: EdgeInsets.only(right: 15),
-                                        child: Text(
-                                          membersi[index].gender[0],
-                                          style: TextStyle(fontSize: 18),
-                                        )),
-                                  ))
-                            ],
-                          ),
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Row(
+                          children: [
+                            membersi[index].adhar != ''
+                                ? Text(membersi[index].adhar)
+                                : Text(membersi[index].relation),
+                            Expanded(
+                                child: Align(
+                              alignment: Alignment.centerRight,
+                              child: Padding(
+                                  padding: EdgeInsets.only(right: 15),
+                                  child: Text(
+                                    membersi[index].dob,
+                                    style: TextStyle(fontSize: 18),
+                                  )),
+                            ))
+                          ],
                         ),
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Row(
-                            children: [
-                              membersi[index].adhar != ''
-                                  ? Text(membersi[index].adhar)
-                                  : Text(membersi[index].relation),
-                              Expanded(
-                                  child: Align(
-                                    alignment: Alignment.centerRight,
-                                    child: Padding(
-                                        padding: EdgeInsets.only(right: 15),
-                                        child: Text(
-                                          membersi[index].dob,
-                                          style: TextStyle(fontSize: 18),
-                                        )),
-                                  ))
-                            ],
-                          ),
-                        ),
-                      ]);
+                      ),
+                    ]);
                   })
             ],
           ),
