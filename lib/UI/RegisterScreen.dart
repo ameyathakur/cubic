@@ -9,6 +9,7 @@ import 'package:cubic/UI/MainScreen.dart';
 import 'package:cubic/UI/PaymentScreen.dart';
 import 'package:cubic/Widgets/Button.dart';
 import 'package:cubic/Widgets/FamilyMember.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -17,6 +18,8 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import '../amplifyconfiguration.dart';
 
 import '../models/ModelProvider.dart';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 TextEditingController email = new TextEditingController(),
     contact = new TextEditingController();
@@ -74,89 +77,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
             width: 73.0,
           ),
           Expanded(
-              child: SingleChildScrollView(
-                  padding: EdgeInsets.only(top: 50),
+            child: SingleChildScrollView(
+                padding: EdgeInsets.only(top: 50),
                 child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      Container(
-                          margin: EdgeInsets.only(left: 20, right: 20, top: 20),
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              border:
-                                  Border.all(color: Colors.black, width: 1.5),
-                              borderRadius: BorderRadius.circular(7)),
-                          child: Center(
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter contact number';
-                                }
-                                return null;
-                              },
-                              controller: contact,
-                              decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.only(left: 10.0),
-                                  hintText: 'Contact No.',
-                                  border: InputBorder.none),
-                            ),
-                          )),
-                      Container(
-                          margin: EdgeInsets.only(left: 20, right: 20, top: 20),
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              border:
-                                  Border.all(color: Colors.black, width: 1.5),
-                              borderRadius: BorderRadius.circular(7)),
-                          child: Center(
-                            child: TextFormField(
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter Email id';
-                                }
-                                if(!value.contains('@')){
-                                  return 'Email id is invalid';
-                                }
-                                return null;
-                              },
-                              controller: email,
-                              decoration: InputDecoration(
-                                  contentPadding: EdgeInsets.only(left: 10.0),
-                                  hintText: 'Email id',
-                                  border: InputBorder.none),
-                            ),
-                          )),
-                      Column(
-                        children: [
-                          Container(
-                              margin:
-                                  EdgeInsets.only(left: 20, right: 20, top: 20),
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  border: Border.all(
-                                      color: Colors.black, width: 1.5),
-                                  borderRadius: BorderRadius.circular(7)),
-                              child: Center(
-                                child: TextFormField(
-                                  controller: namecontroller,
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter your name';
-                                    }
-                                    return null;
-                                  },
-                                  decoration: InputDecoration(
-                                      contentPadding:
-                                          EdgeInsets.only(left: 10.0),
-                                      hintText: 'Name',
-                                      border: InputBorder.none),
-                                ),
-                              )),
-                          Container(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        Container(
                             margin:
                                 EdgeInsets.only(left: 20, right: 20, top: 20),
                             width: double.infinity,
@@ -165,95 +92,76 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 border:
                                     Border.all(color: Colors.black, width: 1.5),
                                 borderRadius: BorderRadius.circular(7)),
-                            child: Padding(
-                              padding: EdgeInsets.only(left: 10, right: 10),
-                              child: DropdownButtonHideUnderline(
-                                  child: DropdownButtonFormField2(
-                                    validator: (value){
-                                      if(value == 'Select Item'){
-                                        return 'Please select gender';
-                                      }
-                                    },
-                                      hint: Text(
-                                        'Select Item',
-                                      ),
-                                      items: genders
-                                          .map((item) =>
-                                              DropdownMenuItem<String>(
-                                                value: item,
-                                                child: Text(
-                                                  item,
-                                                  style: const TextStyle(
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
-                                              ))
-                                          .toList(),
-                                      value: selectedGender,
-                                      onChanged: (String? newValue) {
-                                        setState(() {
-                                          selectedGender = newValue!;
-                                        });
-                                      })),
-                            ),
-                          ),
-                          Row(
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.all(20),
-                                child: Text(
-                                  'Date of Birth',
-                                  style: TextStyle(fontSize: 18.0),
-                                ),
+                            child: Center(
+                              child: TextFormField(
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter contact number';
+                                  }
+                                  return null;
+                                },
+                                controller: contact,
+                                decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10.0),
+                                    hintText: 'Contact No.',
+                                    border: InputBorder.none),
                               ),
-                              Flexible(
-                                child: Container(
-                                    margin: EdgeInsets.only(
-                                        left: 20, right: 20, top: 20),
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        border: Border.all(
-                                            color: Colors.black, width: 1.5),
-                                        borderRadius: BorderRadius.circular(7)),
-                                    child: Center(
-                                      child: TextFormField(
-
-                                        validator: (value){
-                                          if (value == null || value.isEmpty) {
-                                            return 'Enter Date of Birth';
-                                          }
-                                          return null;
-                                        },
-                                        controller: dobcontroller,
-                                        decoration: InputDecoration(
-                                            contentPadding:
-                                                EdgeInsets.only(left: 10.0),
-                                            border: InputBorder.none),
-                                        onTap: () {
-                                          showDatePicker(
-                                            context: context,
-                                            initialDate: DateTime.now(),
-                                            firstDate: DateTime(1900, 1),
-                                            lastDate: DateTime.now(),
-                                          ).then((pickedDate) {
-                                            setState(() {
-                                              var date = DateTime.parse(
-                                                  pickedDate.toString());
-                                              var formattedDate =
-                                                  "${date.day}-${date.month}-${date.year}";
-                                              dobcontroller.text =
-                                                  formattedDate;
-                                              dob = formattedDate;
-                                            });
-                                          });
-                                        },
-                                      ),
-                                    )),
-                              )
-                            ],
-                          ),
-                          Container(
+                            )),
+                        Container(
+                            margin:
+                                EdgeInsets.only(left: 20, right: 20, top: 20),
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                border:
+                                    Border.all(color: Colors.black, width: 1.5),
+                                borderRadius: BorderRadius.circular(7)),
+                            child: Center(
+                              child: TextFormField(
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter Email id';
+                                  }
+                                  if (!value.contains('@')) {
+                                    return 'Email id is invalid';
+                                  }
+                                  return null;
+                                },
+                                controller: email,
+                                decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.only(left: 10.0),
+                                    hintText: 'Email id',
+                                    border: InputBorder.none),
+                              ),
+                            )),
+                        Column(
+                          children: [
+                            Container(
+                                margin: EdgeInsets.only(
+                                    left: 20, right: 20, top: 20),
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(
+                                        color: Colors.black, width: 1.5),
+                                    borderRadius: BorderRadius.circular(7)),
+                                child: Center(
+                                  child: TextFormField(
+                                    controller: namecontroller,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter your name';
+                                      }
+                                      return null;
+                                    },
+                                    decoration: InputDecoration(
+                                        contentPadding:
+                                            EdgeInsets.only(left: 10.0),
+                                        hintText: 'Name',
+                                        border: InputBorder.none),
+                                  ),
+                                )),
+                            Container(
                               margin:
                                   EdgeInsets.only(left: 20, right: 20, top: 20),
                               width: double.infinity,
@@ -262,119 +170,254 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   border: Border.all(
                                       color: Colors.black, width: 1.5),
                                   borderRadius: BorderRadius.circular(7)),
-                              child: Center(
-                                child: TextField(
-                                  controller: adharcontroller,
-                                  decoration: InputDecoration(
-                                      contentPadding:
-                                          EdgeInsets.only(left: 10.0),
-                                      hintText: 'Aadhar No.',
-                                      border: InputBorder.none),
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 10, right: 10),
+                                child: DropdownButtonHideUnderline(
+                                    child: DropdownButtonFormField2(
+                                        validator: (value) {
+                                          if (value == 'Select Item') {
+                                            return 'Please select gender';
+                                          }
+                                        },
+                                        hint: Text(
+                                          'Select Item',
+                                        ),
+                                        items: genders
+                                            .map((item) =>
+                                                DropdownMenuItem<String>(
+                                                  value: item,
+                                                  child: Text(
+                                                    item,
+                                                    style: const TextStyle(
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                ))
+                                            .toList(),
+                                        value: selectedGender,
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            selectedGender = newValue!;
+                                          });
+                                        })),
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.all(20),
+                                  child: Text(
+                                    'Date of Birth',
+                                    style: TextStyle(fontSize: 18.0),
+                                  ),
                                 ),
-                              ))
-                        ],
-                      ),
-                      ListView.builder(
-                        physics: ScrollPhysics(),
-                        scrollDirection: Axis.vertical,
-                        shrinkWrap: true,
-                        addAutomaticKeepAlives: true,
-                        itemCount: members.length,
-                        itemBuilder: (_, i) => members[i],
-                      ),
-                      Padding(
-                          padding: EdgeInsets.all(15),
-                          child: Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                                onPressed: () {
-                                  onAddForm();
-                                },
-                                child: Text('Add Family Member',
-                                    style: TextStyle(fontSize: 16.0))),
-                          )),
-                      Padding(
-                          padding:
-                              EdgeInsets.only(top: 20, left: 20, right: 20),
-                          child: RichText(
-                            text: TextSpan(
-                              style: defaultStyle,
-                              children: <TextSpan>[
-                                TextSpan(text: 'By clicking, you accept our '),
-                                TextSpan(
-                                    text: 'Terms and Conditions',
-                                    style: TextStyle(
-                                        color: const Color(0XFF0000FF)),
-                                    recognizer: TapGestureRecognizer()
-                                      ..onTap = () {}),
+                                Flexible(
+                                  child: Container(
+                                      margin: EdgeInsets.only(
+                                          left: 20, right: 20, top: 20),
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          border: Border.all(
+                                              color: Colors.black, width: 1.5),
+                                          borderRadius:
+                                              BorderRadius.circular(7)),
+                                      child: Center(
+                                        child: TextFormField(
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.isEmpty) {
+                                              return 'Enter Date of Birth';
+                                            }
+                                            return null;
+                                          },
+                                          controller: dobcontroller,
+                                          decoration: InputDecoration(
+                                              contentPadding:
+                                                  EdgeInsets.only(left: 10.0),
+                                              border: InputBorder.none),
+                                          onTap: () {
+                                            showDatePicker(
+                                              context: context,
+                                              initialDate: DateTime.now(),
+                                              firstDate: DateTime(1900, 1),
+                                              lastDate: DateTime.now(),
+                                            ).then((pickedDate) {
+                                              setState(() {
+                                                var date = DateTime.parse(
+                                                    pickedDate.toString());
+                                                var formattedDate =
+                                                    "${date.day}-${date.month}-${date.year}";
+                                                dobcontroller.text =
+                                                    formattedDate;
+                                                dob = formattedDate;
+                                              });
+                                            });
+                                          },
+                                        ),
+                                      )),
+                                )
                               ],
                             ),
-                          )),
-                      Button(
-                          text: 'Register',
-                          onPress: () async {
-                            if (_formKey.currentState!.validate()) {
-                              // If the form is valid, display a snackbar. In the real world,
-                              // you'd often call a server or save the information in a database.
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Registering')));
+                            Container(
+                                margin: EdgeInsets.only(
+                                    left: 20, right: 20, top: 20),
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(
+                                        color: Colors.black, width: 1.5),
+                                    borderRadius: BorderRadius.circular(7)),
+                                child: Center(
+                                  child: TextField(
+                                    controller: adharcontroller,
+                                    decoration: InputDecoration(
+                                        contentPadding:
+                                            EdgeInsets.only(left: 10.0),
+                                        hintText: 'Aadhar No.',
+                                        border: InputBorder.none),
+                                  ),
+                                ))
+                          ],
+                        ),
+                        ListView.builder(
+                          physics: ScrollPhysics(),
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          addAutomaticKeepAlives: true,
+                          itemCount: members.length,
+                          itemBuilder: (_, i) => members[i],
+                        ),
+                        Padding(
+                            padding: EdgeInsets.all(15),
+                            child: Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                  onPressed: () {
+                                    onAddForm();
+                                  },
+                                  child: Text('Add Family Member',
+                                      style: TextStyle(fontSize: 16.0))),
+                            )),
+                        Padding(
+                            padding:
+                                EdgeInsets.only(top: 20, left: 20, right: 20),
+                            child: RichText(
+                              text: TextSpan(
+                                style: defaultStyle,
+                                children: <TextSpan>[
+                                  TextSpan(
+                                      text: 'By clicking, you accept our '),
+                                  TextSpan(
+                                      text: 'Terms and Conditions',
+                                      style: TextStyle(
+                                          color: const Color(0XFF0000FF)),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () {}),
+                                ],
+                              ),
+                            )),
+                        Button(
+                            text: 'Register',
+                            onPress: () async {
+                              // if (_formKey.currentState!.validate()) {
+                              //   // If the form is valid, display a snackbar. In the real world,
+                              //   // you'd often call a server or save the information in a database.
+                              //   ScaffoldMessenger.of(context).showSnackBar(
+                              //     const SnackBar(content: Text('Registering')));
+                              //
+                              //       // Add the following line to add API plugin to your app
+                              //       if (!Amplify.isConfigured) {
+                              //     Amplify.addPlugin(AmplifyAPI(
+                              //         modelProvider: ModelProvider.instance));
+                              //
+                              //     await Amplify.configure(amplifyconfig);
+                              //   }
+                              //
+                              //   try {
 
-                                  // Add the following line to add API plugin to your app
-                                  if (!Amplify.isConfigured) {
-                                Amplify.addPlugin(AmplifyAPI(
-                                    modelProvider: ModelProvider.instance));
+                              //     final request = ModelMutations.create(user);
+                              //     final response = await Amplify.API
+                              //         .mutate(request: request)
+                              //         .response;
+                              //
+                              //     User? createdUser = response.data;
+                              //     if (createdUser == null) {
+                              //       print('errors: ' + response.errors.toString());
+                              //       return;
+                              //     }
+                              //     print('Mutation result: ' + createdUser.id);
+                              //   } on ApiException catch (e) {
+                              //     print('Mutation failed: $e');
+                              //   } on AmplifyAlreadyConfiguredException {
+                              //     print(
+                              //         "Tried to reconfigure Amplify; this can occur when your app restarts on Android.");
+                              //   }
 
-                                await Amplify.configure(amplifyconfig);
+                              List data = <MemberModel>[];
+                              data.add(firstModel);
+
+                              for (int i = 0; i < members.length; i++) {
+                                data.add(members[i].memberModel);
                               }
 
-                              try {
-                                List data = <MemberModel>[];
-                                data.add(firstModel);
+                              print("amey $data");
 
-                                for (int i = 0; i < members.length; i++) {
-                                  data.add(members[i].memberModel);
-                                }
+                              var json = jsonEncode(
+                                  data.map((e) => e.toJson()).toList());
+                              await Firebase.initializeApp();
 
-                                var json = jsonEncode(
-                                    data.map((e) => e.toJson()).toList());
+                              CollectionReference users = FirebaseFirestore
+                                  .instance
+                                  .collection('Users');
 
-                                print("amey $json");
-                                User user = User(
-                                    id: contact.text,
-                                    emaild_id: email.text,
-                                    contact_no: contact.text,
-                                    members: json);
-                                final request = ModelMutations.create(user);
-                                final response = await Amplify.API
-                                    .mutate(request: request)
-                                    .response;
+                              users
+                                  .add({
+                                    'id': contact.text,
+                                    'emaild_id': email.text,
+                                    'contact_no': contact.text,
+                                    'members':
+                                        data.map((i) => i.toMap()).toList(),
+                                  })
+                                  .then((value) => print("User Added"))
+                                  .catchError((error) =>
+                                      print("Failed to add user: $error"));
 
-                                User? createdUser = response.data;
-                                if (createdUser == null) {
-                                  print('errors: ' + response.errors.toString());
-                                  return;
-                                }
-                                print('Mutation result: ' + createdUser.id);
-                              } on ApiException catch (e) {
-                                print('Mutation failed: $e');
-                              } on AmplifyAlreadyConfiguredException {
-                                print(
-                                    "Tried to reconfigure Amplify; this can occur when your app restarts on Android.");
-                              }
+                              // FirebaseFirestore.instance.collection('users').doc('OKuHZlpVrS84oVn0mLpx').collection('members').add(data.);
+
+                              // for (int i = 0; i < data.length; i++) {
+                              //   MemberModel member = data[i];
+                              //   FirebaseFirestore.instance
+                              //       .collection('users')
+                              //       .doc('tETfb31NFNO3XhhRnPhc')
+                              //       .collection('members')
+                              //       .add({
+                              //         'name': member.name,
+                              //         'relation': member.relation,
+                              //         'adhar': member.adhar,
+                              //         'dob': member.dob,
+                              //         'subscribed': member.subscribed,
+                              //         'deleted': member.deleted,
+                              //         'gender': member.gender
+                              //       })
+                              //       .then((value) => print(data[i]))
+                              //       .catchError((error) =>
+                              //           print("Failed to add user: $error"));
+                              // }
 
                               Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(
                                       builder: (BuildContext context) =>
                                           PaymentScreen()));
 
-                            }
-
-                          },
-                          color: const Color(0XFF208FEE),
-                          borderColor: const Color(0XFF208FEE),
-                          textColor: Colors.white)
-                    ],
-                  ))),)
+                              // }
+                            },
+                            color: const Color(0XFF208FEE),
+                            borderColor: const Color(0XFF208FEE),
+                            textColor: Colors.white)
+                      ],
+                    ))),
+          )
         ],
       ),
     );

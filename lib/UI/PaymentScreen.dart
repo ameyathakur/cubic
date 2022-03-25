@@ -107,24 +107,24 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           text: 'Pay ' + price.toString(),
                           onPress: () async {
 
-                            for(int i=0; i<membersi.length; i++){
-                              if(names[membersi[i].name] == true){
-                                membersi[i].subscribed = true;
-                              }
-                              else{
-                                membersi[i].subscribed = false;
-                              }
-                            }
-
-                            var json = jsonEncode(
-                                membersi.map((e) => e.toJson()).toList());
-
-                            User newUser = user.copyWith(members: json);
-
-                            final request = ModelMutations.update(newUser);
-                            final response = await Amplify.API.mutate(request: request).response;
-
-                            print("jk " + response.data.toString());
+                            // for(int i=0; i<membersi.length; i++){
+                            //   if(names[membersi[i].name] == true){
+                            //     membersi[i].subscribed = true;
+                            //   }
+                            //   else{
+                            //     membersi[i].subscribed = false;
+                            //   }
+                            // }
+                            //
+                            // var json = jsonEncode(
+                            //     membersi.map((e) => e.toJson()).toList());
+                            //
+                            // User newUser = user.copyWith(members: json);
+                            //
+                            // final request = ModelMutations.update(newUser);
+                            // final response = await Amplify.API.mutate(request: request).response;
+                            //
+                            // print("jk " + response.data.toString());
 
                             Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(
