@@ -5,6 +5,7 @@ import 'package:amplify_api/model_queries.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cubic/Custom%20Models/MemberModel.dart';
+import 'package:cubic/UI/AddDocument.dart';
 import 'package:cubic/UI/RegisterScreen.dart';
 import 'package:cubic/Widgets/Button.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
@@ -25,8 +26,14 @@ class _UserProfileState extends State<UserProfile> {
   List<dynamic> subusers = [];
   List<MemberModel> membersi = [];
   late User user;
-  TextEditingController dobcontroller = TextEditingController();
+  List<TextEditingController> controllers = [];
   FirebaseFirestore firestore = FirebaseFirestore.instance;
+  List<MemberModel> listData = [];
+
+  void initState() {
+    super.initState();
+    getFirebase();
+  }
 
   @override
   build(BuildContext context) {
@@ -42,25 +49,10 @@ class _UserProfileState extends State<UserProfile> {
             style: TextStyle(color: Colors.black),
           ),
           backgroundColor: const Color(0xFFFFBD59),
-          actions: [
-            Padding(
-                padding: EdgeInsets.fromLTRB(0, 10, 20, 10),
-                child: Button(
-                    text: 'Edit',
-                    onPress: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  RegisterScreen()));
-                    },
-                    color: const Color(0xFFFFBD59),
-                    borderColor: Colors.black,
-                    textColor: Colors.black))
-          ],
+
         ),
         body: FutureBuilder<DocumentSnapshot>(
-            future: users.doc('ejm41xk4kdo2srkZOpjm').get(),
+            future: users.doc('64hhzztX4pqgPkdHg51N').get(),
             builder: (BuildContext context,
                 AsyncSnapshot<DocumentSnapshot> snapshot) {
               if (snapshot.hasError) {
@@ -146,9 +138,11 @@ class _UserProfileState extends State<UserProfile> {
                         shrinkWrap: true,
                         itemCount: membersi.length,
                         itemBuilder: (BuildContext context, int index) {
-                         {
-                            dobcontroller = new TextEditingController(
-                                text: membersi[index].dob);
+                          TextEditingController dobcontroller =
+                              TextEditingController();
+                          controllers.add(dobcontroller);
+                          if (controllers[index].text == '') {
+                            controllers[index].text = membersi[index].dob;
                           }
 
                           return Column(children: [
@@ -382,7 +376,7 @@ class _UserProfileState extends State<UserProfile> {
                                                                                 }
                                                                                 return null;
                                                                               },
-                                                                              controller: dobcontroller,
+                                                                              controller: controllers[index],
                                                                               decoration: InputDecoration(contentPadding: EdgeInsets.only(left: 10.0), border: InputBorder.none),
                                                                               onTap: () {
                                                                                 showDatePicker(
@@ -394,8 +388,7 @@ class _UserProfileState extends State<UserProfile> {
                                                                                   var date = DateTime.parse(pickedDate.toString());
                                                                                   var formattedDate = "${date.day}-${date.month}-${date.year}";
 
-                                                                                  dobcontroller.text = formattedDate;
-
+                                                                                  controllers[index].text = formattedDate;
                                                                                   dob = formattedDate;
 
                                                                                   membersi[index].dob = dob;
@@ -421,18 +414,18 @@ class _UserProfileState extends State<UserProfile> {
 
                                                                         users
                                                                             .doc(
-                                                                                'ejm41xk4kdo2srkZOpjm')
+                                                                                '64hhzztX4pqgPkdHg51N')
                                                                             .update({
                                                                           'members': membersi
                                                                               .map((i) => i.toMap())
                                                                               .toList()
                                                                         });
 
+                                                                        getFirebase();
+
                                                                         Navigator.of(context,
                                                                                 rootNavigator: true)
                                                                             .pop();
-
-
                                                                       },
                                                                       color: new Color(
                                                                           0xFF208FEE),
@@ -450,15 +443,69 @@ class _UserProfileState extends State<UserProfile> {
                                             icon: Icon(Icons.edit)),
                                         IconButton(
                                             onPressed: () async {
-                                              membersi.removeAt(index);
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) =>
+                                                    AlertDialog(
+                                                        title: Text(
+                                                            'Delete member : ' +
+                                                                membersi[index]
+                                                                    .name +
+                                                                '?'),
+                                                        content: Row(
+                                                          mainAxisAlignment: MainAxisAlignment.center,
+                                                          children: [
+                                                            Button(
+                                                              text: 'Delete',
+                                                              color: new Color(
+                                                                  0xFF208FEE),
+                                                              borderColor:
+                                                                  new Color(
+                                                                      0xFF208FEE),
+                                                              textColor:
+                                                                  Colors.white,
+                                                              onPress: () {
+                                                                membersi[index].deleted = true;
+                                                                users
+                                                                    .doc(
+                                                                        '64hhzztX4pqgPkdHg51N')
+                                                                    .update({
+                                                                  'members': membersi
+                                                                      .map((i) =>
+                                                                          i.toMap())
+                                                                      .toList()
+                                                                });
 
-                                              users
-                                                  .doc('ejm41xk4kdo2srkZOpjm')
-                                                  .update({
-                                                'members': membersi
-                                                    .map((i) => i.toMap())
-                                                    .toList()
-                                              });
+                                                                getFirebase();
+
+                                                                Navigator.of(
+                                                                        context,
+                                                                        rootNavigator:
+                                                                            true)
+                                                                    .pop();
+                                                              },
+                                                            ),
+                                                            Padding(padding: EdgeInsets.only(left: 10),
+                                                            child: Button(
+                                                              text: 'Cancel',
+                                                              color: new Color(
+                                                                  0xFF208FEE),
+                                                              borderColor:
+                                                                  new Color(
+                                                                      0xFF208FEE),
+                                                              textColor:
+                                                                  Colors.white,
+                                                              onPress: () {
+                                                                Navigator.of(
+                                                                        context,
+                                                                        rootNavigator:
+                                                                            true)
+                                                                    .pop();
+                                                              },
+                                                            ),)
+                                                          ],
+                                                        )),
+                                              );
                                             },
                                             icon: Icon(Icons.delete)),
                                       ]),
@@ -493,6 +540,8 @@ class _UserProfileState extends State<UserProfile> {
                                   membersi[index].adhar != ''
                                       ? Text(membersi[index].adhar)
                                       : Text(membersi[index].relation),
+
+                                  (membersi[index].deleted == false) ?
                                   Expanded(
                                       child: Align(
                                     alignment: Alignment.centerRight,
@@ -502,7 +551,17 @@ class _UserProfileState extends State<UserProfile> {
                                           membersi[index].dob,
                                           style: TextStyle(fontSize: 18),
                                         )),
-                                  ))
+                                  )):
+                                  Expanded(
+                                      child: Align(
+                                        alignment: Alignment.centerRight,
+                                        child: Padding(
+                                            padding: EdgeInsets.only(right: 15),
+                                            child: Text(
+                                              'Deleted User',
+                                              style: TextStyle(fontSize: 18),
+                                            )),
+                                      ))
                                 ],
                               ),
                             ),
@@ -512,5 +571,19 @@ class _UserProfileState extends State<UserProfile> {
                 ),
               );
             }));
+  }
+
+  getFirebase() async {
+    CollectionReference users = FirebaseFirestore.instance.collection('Users');
+    DocumentSnapshot documentSnapshot =
+        await users.doc('64hhzztX4pqgPkdHg51N').get();
+
+    setState(() {
+      List<dynamic> data = documentSnapshot.get('members');
+
+      Iterable l = data;
+      membersi =
+          List<MemberModel>.from(l.map((model) => MemberModel.fromJson(model)));
+    });
   }
 }

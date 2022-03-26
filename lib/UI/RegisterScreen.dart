@@ -9,6 +9,7 @@ import 'package:cubic/UI/MainScreen.dart';
 import 'package:cubic/UI/PaymentScreen.dart';
 import 'package:cubic/Widgets/Button.dart';
 import 'package:cubic/Widgets/FamilyMember.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -58,6 +59,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Firebase.initializeApp();
+
     MemberModel firstModel = new MemberModel(
         name: namecontroller.text.toString(),
         relation: "Self",
@@ -93,7 +96,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     Border.all(color: Colors.black, width: 1.5),
                                 borderRadius: BorderRadius.circular(7)),
                             child: Center(
-                              child: TextFormField(
+                              child:
+                              TextFormField(
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return 'Please enter contact number';
@@ -320,96 +324,92 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         Button(
                             text: 'Register',
                             onPress: () async {
-                              // if (_formKey.currentState!.validate()) {
-                              //   // If the form is valid, display a snackbar. In the real world,
-                              //   // you'd often call a server or save the information in a database.
-                              //   ScaffoldMessenger.of(context).showSnackBar(
-                              //     const SnackBar(content: Text('Registering')));
-                              //
-                              //       // Add the following line to add API plugin to your app
-                              //       if (!Amplify.isConfigured) {
-                              //     Amplify.addPlugin(AmplifyAPI(
-                              //         modelProvider: ModelProvider.instance));
-                              //
-                              //     await Amplify.configure(amplifyconfig);
-                              //   }
-                              //
-                              //   try {
+                              if (_formKey.currentState!.validate()) {
+                                //   // If the form is valid, display a snackbar. In the real world,
+                                //   // you'd often call a server or save the information in a database.
+                                //   ScaffoldMessenger.of(context).showSnackBar(
+                                //     const SnackBar(content: Text('Registering')));
+                                //
+                                //       // Add the following line to add API plugin to your app
+                                //       if (!Amplify.isConfigured) {
+                                //     Amplify.addPlugin(AmplifyAPI(
+                                //         modelProvider: ModelProvider.instance));
+                                //
+                                //     await Amplify.configure(amplifyconfig);
+                                //   }
+                                //
+                                //   try {
 
-                              //     final request = ModelMutations.create(user);
-                              //     final response = await Amplify.API
-                              //         .mutate(request: request)
-                              //         .response;
-                              //
-                              //     User? createdUser = response.data;
-                              //     if (createdUser == null) {
-                              //       print('errors: ' + response.errors.toString());
-                              //       return;
-                              //     }
-                              //     print('Mutation result: ' + createdUser.id);
-                              //   } on ApiException catch (e) {
-                              //     print('Mutation failed: $e');
-                              //   } on AmplifyAlreadyConfiguredException {
-                              //     print(
-                              //         "Tried to reconfigure Amplify; this can occur when your app restarts on Android.");
-                              //   }
+                                //     final request = ModelMutations.create(user);
+                                //     final response = await Amplify.API
+                                //         .mutate(request: request)
+                                //         .response;
+                                //
+                                //     User? createdUser = response.data;
+                                //     if (createdUser == null) {
+                                //       print('errors: ' + response.errors.toString());
+                                //       return;
+                                //     }
+                                //     print('Mutation result: ' + createdUser.id);
+                                //   } on ApiException catch (e) {
+                                //     print('Mutation failed: $e');
+                                //   } on AmplifyAlreadyConfiguredException {
+                                //     print(
+                                //         "Tried to reconfigure Amplify; this can occur when your app restarts on Android.");
+                                //   }
 
-                              List data = <MemberModel>[];
-                              data.add(firstModel);
+                                List data = <MemberModel>[];
+                                data.add(firstModel);
 
-                              for (int i = 0; i < members.length; i++) {
-                                data.add(members[i].memberModel);
+                                for (int i = 0; i < members.length; i++) {
+                                  data.add(members[i].memberModel);
+                                }
+
+                                print("amey $data");
+
+                                CollectionReference users = FirebaseFirestore
+                                    .instance
+                                    .collection('Users');
+
+                                users
+                                    .add({
+                                  'id': contact.text,
+                                  'emaild_id': email.text,
+                                  'contact_no': contact.text,
+                                  'members':
+                                  data.map((i) => i.toMap()).toList(),
+                                })
+                                    .then((value) => print("User Added"))
+                                    .catchError((error) =>
+                                    print("Failed to add user: $error"));
+
+                                // FirebaseFirestore.instance.collection('users').doc('OKuHZlpVrS84oVn0mLpx').collection('members').add(data.);
+
+                                // for (int i = 0; i < data.length; i++) {
+                                //   MemberModel member = data[i];
+                                //   FirebaseFirestore.instance
+                                //       .collection('users')
+                                //       .doc('tETfb31NFNO3XhhRnPhc')
+                                //       .collection('members')
+                                //       .add({
+                                //         'name': member.name,
+                                //         'relation': member.relation,
+                                //         'adhar': member.adhar,
+                                //         'dob': member.dob,
+                                //         'subscribed': member.subscribed,
+                                //         'deleted': member.deleted,
+                                //         'gender': member.gender
+                                //       })
+                                //       .then((value) => print(data[i]))
+                                //       .catchError((error) =>
+                                //           print("Failed to add user: $error"));
+                                // }
+
+                                Navigator.of(context).pushReplacement(
+                                    MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            PaymentScreen()));
                               }
-
-                              print("amey $data");
-
-                              var json = jsonEncode(
-                                  data.map((e) => e.toJson()).toList());
-                              await Firebase.initializeApp();
-
-                              CollectionReference users = FirebaseFirestore
-                                  .instance
-                                  .collection('Users');
-
-                              users
-                                  .add({
-                                    'id': contact.text,
-                                    'emaild_id': email.text,
-                                    'contact_no': contact.text,
-                                    'members':
-                                        data.map((i) => i.toMap()).toList(),
-                                  })
-                                  .then((value) => print("User Added"))
-                                  .catchError((error) =>
-                                      print("Failed to add user: $error"));
-
-                              // FirebaseFirestore.instance.collection('users').doc('OKuHZlpVrS84oVn0mLpx').collection('members').add(data.);
-
-                              // for (int i = 0; i < data.length; i++) {
-                              //   MemberModel member = data[i];
-                              //   FirebaseFirestore.instance
-                              //       .collection('users')
-                              //       .doc('tETfb31NFNO3XhhRnPhc')
-                              //       .collection('members')
-                              //       .add({
-                              //         'name': member.name,
-                              //         'relation': member.relation,
-                              //         'adhar': member.adhar,
-                              //         'dob': member.dob,
-                              //         'subscribed': member.subscribed,
-                              //         'deleted': member.deleted,
-                              //         'gender': member.gender
-                              //       })
-                              //       .then((value) => print(data[i]))
-                              //       .catchError((error) =>
-                              //           print("Failed to add user: $error"));
-                              // }
-
-                              Navigator.of(context).pushReplacement(
-                                  MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          PaymentScreen()));
-
                               // }
                             },
                             color: const Color(0XFF208FEE),
