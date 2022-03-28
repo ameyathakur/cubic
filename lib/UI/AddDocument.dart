@@ -1,14 +1,26 @@
+import 'dart:io';
+
 import 'package:cubic/Widgets/Button.dart';
+import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 String chip1 = 'Tag 1', chip2 = 'Tag 2', chip3 = 'Tag 3';
 
 enum members { Prescription, Test_Report, Certificate }
 members m = members.Prescription;
 
-class AddDocument extends StatelessWidget {
+class AddDocument extends StatefulWidget {
   const AddDocument({Key? key}) : super(key: key);
 
+  @override
+  State<AddDocument> createState() => _AddDocumentState();
+}
+
+class _AddDocumentState extends State<AddDocument> {
+  List<File> imageList = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,6 +36,7 @@ class AddDocument extends StatelessWidget {
             child: SingleChildScrollView(
                 padding: EdgeInsets.only(top: 50),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
                         margin: EdgeInsets.only(left: 20, right: 20, top: 20),
@@ -240,21 +253,77 @@ class AddDocument extends StatelessWidget {
                             const Text('Certificate'),
                           ],
                         )),
+
+                    (imageList.length != 0)?
+
+                        Padding(padding: EdgeInsets.only(bottom: 20, top: 20), child:
+                    SizedBox(
+                      height: 100.0,
+                      child: ListView.builder(
+                          physics: ClampingScrollPhysics(),
+                          shrinkWrap: true,
+                          scrollDirection: Axis.horizontal,
+                        itemCount: imageList.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return
+                            Padding(padding: EdgeInsets.all(10.0), child:
+                            Stack(
+                            children: [
+                              SizedBox(
+                                  height: 100,
+                                  child: Image.file(imageList[index])),
+                              Align(alignment: Alignment.topRight,child:
+                              IconButton(
+                                padding: EdgeInsets.zero,
+                                constraints: BoxConstraints(),
+                                  icon: Icon(Icons.close, color: Colors.red),
+                                  onPressed: () {
+                                    setState(() {
+                                      imageList.removeAt(index);
+                                    });
+                                  },
+                                ),
+                              )
+                                                          ],
+                              ));
+                        }),)):
+
+                        SizedBox(
+
+                        ),
+
+                    //
+
+                    OutlinedButton(
+                      onPressed: () async {
+                        ImagePicker imagePicker = ImagePicker();
+                        XFile? ximage = await imagePicker.pickImage(
+                            source: ImageSource.gallery);
+
+                        File image = File(ximage!.path);
+
+                        if (image != null) {
+                          setState(() {
+
+                            final bytes = image.readAsBytesSync().lengthInBytes;
+                            final kb = bytes / 1024;
+
+                            if(kb < 500) {
+                              imageList.add(image);
+                            }
+                          });
+                        }
+                        print("Image List Length:" +
+                            imageList!.length.toString());
+                      },
+                      child: Text('+ Add Document'),
+                    ),
+
                     Padding(
-                        padding: EdgeInsets.fromLTRB(10, 20, 10, 0),
+                        padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
                         child: Text(
                             '* Size of Document should be less than 500 KB')),
-                    Align(
-                        alignment: Alignment.centerLeft,
-                        child: Padding(
-                            padding: EdgeInsets.all(10),
-                            child: Button(
-                              text: 'Upload',
-                              onPress: () {},
-                              color: const Color(0XFF208FEE),
-                              borderColor: const Color(0XFF208FEE),
-                              textColor: Colors.white,
-                            ))),
+
                     Button(
                         text: 'Save',
                         onPress: () {},
@@ -268,4 +337,16 @@ class AddDocument extends StatelessWidget {
       ),
     );
   }
+
+  Future addImage() async {
+    final ImagePicker _picker = ImagePicker();
+    File image = (await _picker.pickImage(
+        source: ImageSource.gallery, imageQuality: 50)) as File;
+    print('poi ' + image.toString());
+    imageList.add(image);
+  }
 }
+
+// String pdfUrl = result['pdfUrl'];
+// OpenFile.open(pdfUrl.replaceAll("file://", '')).then(
+//         (result) => debugPrint(result.toString()));
