@@ -100,10 +100,12 @@ class MainScreen extends StatelessWidget {
                   // Update the state of the app
                   // ...
                   // Then close the drawer
-                  Navigator.of(context).pushReplacement(
+                  Navigator.of(context).push(
                       MaterialPageRoute(
                           builder: (BuildContext context) =>
                               UserProfile()));
+
+                  // Navigator.of(context).pop();
                 },
               ),
               ListTile(

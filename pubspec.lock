@@ -230,6 +230,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_genius_scan:
+    dependency: "direct main"
+    description:
+      name: flutter_genius_scan
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.4.7"
   flutter_lints:
     dependency: "direct main"
     description:

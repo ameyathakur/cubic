@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_genius_scan/flutter_genius_scan.dart';
 import 'package:image_picker/image_picker.dart';
 
 String chip1 = 'Tag 1', chip2 = 'Tag 2', chip3 = 'Tag 3';
@@ -254,67 +255,117 @@ class _AddDocumentState extends State<AddDocument> {
                           ],
                         )),
 
-                    (imageList.length != 0)?
-
-                        Padding(padding: EdgeInsets.only(bottom: 20, top: 20), child:
-                    SizedBox(
-                      height: 100.0,
-                      child: ListView.builder(
-                          physics: ClampingScrollPhysics(),
-                          shrinkWrap: true,
-                          scrollDirection: Axis.horizontal,
-                        itemCount: imageList.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return
-                            Padding(padding: EdgeInsets.all(10.0), child:
-                            Stack(
-                            children: [
-                              SizedBox(
-                                  height: 100,
-                                  child: Image.file(imageList[index])),
-                              Align(alignment: Alignment.topRight,child:
-                              IconButton(
-                                padding: EdgeInsets.zero,
-                                constraints: BoxConstraints(),
-                                  icon: Icon(Icons.close, color: Colors.red),
-                                  onPressed: () {
-                                    setState(() {
-                                      imageList.removeAt(index);
-                                    });
-                                  },
-                                ),
-                              )
-                                                          ],
-                              ));
-                        }),)):
-
-                        SizedBox(
-
-                        ),
+                    (imageList.length != 0)
+                        ? Padding(
+                            padding: EdgeInsets.only(bottom: 20, top: 20),
+                            child: SizedBox(
+                              height: 100.0,
+                              child: ListView.builder(
+                                  physics: ClampingScrollPhysics(),
+                                  shrinkWrap: true,
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: imageList.length,
+                                  itemBuilder:
+                                      (BuildContext context, int index) {
+                                    return Padding(
+                                        padding: EdgeInsets.all(10.0),
+                                        child: Stack(
+                                          children: [
+                                            SizedBox(
+                                                height: 100,
+                                                child: Image.file(
+                                                    imageList[index])),
+                                            Align(
+                                              alignment: Alignment.topRight,
+                                              child: IconButton(
+                                                padding: EdgeInsets.zero,
+                                                constraints: BoxConstraints(),
+                                                icon: Icon(Icons.close,
+                                                    color: Colors.red),
+                                                onPressed: () {
+                                                  setState(() {
+                                                    imageList.removeAt(index);
+                                                  });
+                                                },
+                                              ),
+                                            )
+                                          ],
+                                        ));
+                                  }),
+                            ))
+                        : SizedBox(),
 
                     //
 
                     OutlinedButton(
                       onPressed: () async {
-                        ImagePicker imagePicker = ImagePicker();
-                        XFile? ximage = await imagePicker.pickImage(
-                            source: ImageSource.gallery);
+                        showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                                title: Text('Add Image from'),
+                                content: Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Padding(padding: EdgeInsets.all(10), child:
+                                    Button(
+                                      text: 'Import',
+                                      onPress: () async {
+                                        Navigator.of(context,
+                                            rootNavigator: true)
+                                            .pop();
+                                        ImagePicker imagePicker = ImagePicker();
+                                        XFile? ximage =
+                                            await imagePicker.pickImage(
+                                                source: ImageSource.gallery);
 
-                        File image = File(ximage!.path);
+                                        File image = File(ximage!.path);
 
-                        if (image != null) {
-                          setState(() {
+                                        if (image != null) {
+                                          setState(() {
 
-                            final bytes = image.readAsBytesSync().lengthInBytes;
-                            final kb = bytes / 1024;
+                                              imageList.add(image);
 
-                            if(kb < 500) {
-                              imageList.add(image);
-                            }
-                          });
-                        }
-                        print("Image List Length:" +
-                            imageList!.length.toString());
+                                          });
+                                        }
+                                        print("Image List Length:" +
+                                            imageList!.length.toString());
+
+                                      },
+                                      borderColor: new Color(0xFF208FEE),
+                                      textColor: Colors.white,
+                                      color: new Color(0xFF208FEE),
+                                    ),),
+                                    Padding(padding: EdgeInsets.all(10), child:
+                                    Button(
+                                      text: 'Scan',
+                                      onPress: () async {
+                                        Navigator.of(context,
+                                            rootNavigator: true)
+                                            .pop();
+
+                                        FlutterGeniusScan.scanWithConfiguration({'source': 'camera',
+                                          'multiPage': true,})
+                                            .then((result) {
+                                              for(int i=0; i<result.length; i++) {
+                                                String imageUrl = result['scans'][i]['enhancedUrl'];
+                                                File file = new File(
+                                                    imageUrl.replaceAll(
+                                                        'file://', ''));
+                                                setState(() {
+                                                  imageList.add(file);
+                                                });
+                                              }
+                                              print('iuy ' + imageList.toString());
+                                        },
+                                        );
+                                      },
+                                      borderColor: new Color(0xFF208FEE),
+                                      textColor: Colors.white,
+                                      color: new Color(0xFF208FEE),
+                                    ),)
+                                  ],
+                                )));
                       },
                       child: Text('+ Add Document'),
                     ),

@@ -98,9 +98,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             child: Center(
                               child:
                               TextFormField(
-                                validator: (value) {
+                              keyboardType: TextInputType.number,
+                              validator: (value) {
                                   if (value == null || value.isEmpty) {
                                     return 'Please enter contact number';
+                                  }
+                                  else if(value.length != 10){
+                                    return 'Please enter Valid contact number';
                                   }
                                   return null;
                                 },
@@ -127,7 +131,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     return 'Please enter Email id';
                                   }
                                   if (!value.contains('@')) {
-                                    return 'Email id is invalid';
+                                    return 'Please enter valid Email id';
                                   }
                                   return null;
                                 },
@@ -179,7 +183,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 child: DropdownButtonHideUnderline(
                                     child: DropdownButtonFormField2(
                                         validator: (value) {
-                                          if (value == 'Select Item') {
+                                          if (value == 'Select Item' || value == 'Select Gender') {
                                             return 'Please select gender';
                                           }
                                         },
@@ -274,6 +278,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     borderRadius: BorderRadius.circular(7)),
                                 child: Center(
                                   child: TextField(
+                                    keyboardType: TextInputType.number,
                                     controller: adharcontroller,
                                     decoration: InputDecoration(
                                         contentPadding:
@@ -324,7 +329,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         Button(
                             text: 'Register',
                             onPress: () async {
-                              // if (_formKey.currentState!.validate()) {
+                              if (_formKey.currentState!.validate()) {
                                 //   // If the form is valid, display a snackbar. In the real world,
                                 //   // you'd often call a server or save the information in a database.
                                 //   ScaffoldMessenger.of(context).showSnackBar(
@@ -333,7 +338,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 //       // Add the following line to add API plugin to your app
                                 //       if (!Amplify.isConfigured) {
                                 //     Amplify.addPlugin(AmplifyAPI(
-                                //         modelProvider: ModelProvider.instance));
+                                //         modelProvider:
+                                //         ModelProvider.instance));
                                 //
                                 //     await Amplify.configure(amplifyconfig);
                                 //   }
@@ -409,9 +415,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     MaterialPageRoute(
                                         builder: (BuildContext context) =>
                                             PaymentScreen()));
-                              },
+                              }
                               // }
-                            // },
+                            },
                             color: const Color(0XFF208FEE),
                             borderColor: const Color(0XFF208FEE),
                             textColor: Colors.white)
