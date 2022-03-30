@@ -1,6 +1,9 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cubic/Custom%20Models/Document.dart';
 import 'package:cubic/Widgets/Button.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
@@ -22,8 +25,19 @@ class AddDocument extends StatefulWidget {
 
 class _AddDocumentState extends State<AddDocument> {
   List<File> imageList = [];
+  int? _value = 1;
+  List<String> chips = ['Fever', 'Routine', 'BP'];
+  TextEditingController nameController = TextEditingController();
+  TextEditingController illnessController = TextEditingController();
+  TextEditingController doctorController = TextEditingController();
+  TextEditingController dobController = TextEditingController();
+  TextEditingController commentsController = TextEditingController();
+  TextEditingController tagController = TextEditingController();
+  List<String> categories = ['Prescription', 'Test Report', 'Certificate'];
+
   @override
   Widget build(BuildContext context) {
+    Firebase.initializeApp();
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
@@ -48,7 +62,7 @@ class _AddDocumentState extends State<AddDocument> {
                             borderRadius: BorderRadius.circular(7)),
                         child: Center(
                           child: TextField(
-                            showCursor: false,
+                            controller: nameController,
                             decoration: InputDecoration(
                                 contentPadding: EdgeInsets.only(left: 10.0),
                                 hintText: 'Name',
@@ -64,7 +78,7 @@ class _AddDocumentState extends State<AddDocument> {
                             borderRadius: BorderRadius.circular(7)),
                         child: Center(
                           child: TextField(
-                            showCursor: false,
+                            controller: illnessController,
                             decoration: InputDecoration(
                                 contentPadding: EdgeInsets.only(left: 10.0),
                                 hintText: 'Illness',
@@ -80,7 +94,7 @@ class _AddDocumentState extends State<AddDocument> {
                             borderRadius: BorderRadius.circular(7)),
                         child: Center(
                           child: TextField(
-                            showCursor: false,
+                            controller: doctorController,
                             decoration: InputDecoration(
                                 contentPadding: EdgeInsets.only(left: 10.0),
                                 hintText: "Doctor's Name",
@@ -108,22 +122,27 @@ class _AddDocumentState extends State<AddDocument> {
                                   borderRadius: BorderRadius.circular(7)),
                               child: Center(
                                 child: TextField(
-                                  showCursor: false,
-                                  decoration: InputDecoration(
-                                      contentPadding:
-                                          EdgeInsets.only(left: 10.0),
-                                      border: InputBorder.none),
-                                  onTap: () {
-                                    showDatePicker(
-                                      context: context,
-                                      initialDate: DateTime.now(),
-                                      firstDate: DateTime(2019, 1),
-                                      lastDate: DateTime(20212, 12),
-                                    ).then((pickedDate) {
-                                      //do whatever you want
-                                    });
-                                  },
-                                ),
+                                    controller: dobController,
+                                    decoration: InputDecoration(
+                                        contentPadding:
+                                            EdgeInsets.only(left: 10.0),
+                                        border: InputBorder.none),
+                                    onTap: () {
+                                      showDatePicker(
+                                        context: context,
+                                        initialDate: DateTime.now(),
+                                        firstDate: DateTime(1900, 1),
+                                        lastDate: DateTime.now(),
+                                      ).then((pickedDate) {
+                                        setState(() {
+                                          var date = DateTime.parse(
+                                              pickedDate.toString());
+                                          var formattedDate =
+                                              "${date.day}-${date.month}-${date.year}";
+                                          dobController.text = formattedDate;
+                                        });
+                                      });
+                                    }),
                               )),
                         )
                       ],
@@ -137,9 +156,9 @@ class _AddDocumentState extends State<AddDocument> {
                             borderRadius: BorderRadius.circular(7)),
                         child: Center(
                           child: TextField(
+                            controller: commentsController,
                             keyboardType: TextInputType.multiline,
                             maxLines: 5,
-                            showCursor: false,
                             decoration: InputDecoration(
                                 contentPadding: EdgeInsets.all(10.0),
                                 hintText: 'Comments',
@@ -156,104 +175,127 @@ class _AddDocumentState extends State<AddDocument> {
                             style: TextStyle(fontSize: 18),
                           ),
                         )),
-                    Row(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(left: 20.0),
-                          child: Chip(
-                            padding: EdgeInsets.only(left: 10, right: 10),
-                            shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(7.5)),
-                                side: BorderSide()),
-                            label: Text('$chip1'),
-                            backgroundColor: const Color(0xFFFFFFF),
+                    MediaQuery.removePadding(
+                      removeTop: true,
+                      context: context,
+                      child: ListView(
+                        padding: EdgeInsets.only(left: 20),
+                        primary: true,
+                        shrinkWrap: true,
+                        children: <Widget>[
+                          Wrap(
+                            spacing: 4.0,
+                            runSpacing: 0.0,
+                            children: List<Widget>.generate(
+                                chips
+                                    .length, // place the length of the array here
+                                (int index) {
+                              return Chip(
+                                deleteIcon: Icon(Icons.close),
+                                onDeleted: () {
+                                  setState(() {
+                                    chips.removeAt(index);
+                                  });
+                                },
+                                label: Text(chips[index]),
+                              );
+                            }).toList(),
                           ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 10.0),
-                          child: Chip(
-                            padding: EdgeInsets.only(left: 10, right: 10),
-                            shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(7.5)),
-                                side: BorderSide()),
-                            label: Text('$chip2'),
-                            backgroundColor: const Color(0xFFFFFFF),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 10.0),
-                          child: Chip(
-                            padding: EdgeInsets.only(left: 10, right: 10),
-                            shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(7.5)),
-                                side: BorderSide()),
-                            label: Text('$chip3'),
-                            backgroundColor: const Color(0xFFFFFFF),
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     Align(
                         alignment: Alignment.centerLeft,
                         child: Padding(
-                          padding: EdgeInsets.only(left: 20.0),
-                          child: Chip(
-                            padding: EdgeInsets.only(left: 10, right: 10),
-                            shape: RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(7.5)),
-                                side: BorderSide()),
-                            label: Text('+ Add'),
-                            backgroundColor: const Color(0xFFFFFFF),
+                            padding: EdgeInsets.only(left: 20.0),
+                            child: OutlinedButton(
+                              onPressed: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                          title: Text('Add Tag'),
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                  margin: EdgeInsets.only(
+                                                      left: 20,
+                                                      right: 20,
+                                                      top: 20),
+                                                  width: double.infinity,
+                                                  decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      border: Border.all(
+                                                          color: Colors.black,
+                                                          width: 1.5),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              7)),
+                                                  child: Center(
+                                                    child: TextField(
+                                                      controller: tagController,
+                                                      decoration: InputDecoration(
+                                                          contentPadding:
+                                                              EdgeInsets.only(
+                                                                  left: 10.0),
+                                                          hintText:
+                                                              'Name of the tag',
+                                                          border:
+                                                              InputBorder.none),
+                                                    ),
+                                                  )),
+                                              Padding(
+                                                  padding: EdgeInsets.all(20),
+                                                  child: Button(
+                                                      text: 'Add Tag',
+                                                      onPress: () {
+                                                        setState(() {
+                                                          chips.add(tagController.text);
+                                                        });
+                                                        Navigator.of(context,
+                                                            rootNavigator: true)
+                                                            .pop();
+                                                      },
+                                                      color: const Color(
+                                                          0XFF208FEE),
+                                                      borderColor: const Color(
+                                                          0XFF208FEE),
+                                                      textColor: Colors.white))
+                                            ],
+                                          ),
+                                        ));
+                              },
+                              child: Text('+'),
+                            ))),
+                    Align(
+                        alignment: Alignment.centerLeft,
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              left: 20.0, right: 20.0, top: 20.0, bottom: 10.0),
+                          child: Text(
+                            'Select Category',
+                            style: TextStyle(fontSize: 18),
                           ),
                         )),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ListTile(
-                              contentPadding: EdgeInsets.all(0),
-                              title: Row(
-                                children: [
-                                  Radio<members>(
-                                    value: members.Prescription,
-                                    groupValue: m,
-                                    onChanged: (members? value) {},
-                                  ),
-                                  const Text('Prescription'),
-                                ],
-                              )),
-                        ),
-                        Expanded(
-                          child: ListTile(
-                              contentPadding: EdgeInsets.all(0),
-                              title: Row(
-                                children: [
-                                  Radio<members>(
-                                    value: members.Test_Report,
-                                    groupValue: m,
-                                    onChanged: (members? value) {},
-                                  ),
-                                  const Text('Test Report'),
-                                ],
-                              )),
-                        ),
-                      ],
-                    ),
-                    ListTile(
-                        contentPadding: EdgeInsets.all(0),
-                        title: Row(
-                          children: [
-                            Radio<members>(
-                              value: members.Certificate,
-                              groupValue: m,
-                              onChanged: (members? value) {},
-                            ),
-                            const Text('Certificate'),
-                          ],
-                        )),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(padding: EdgeInsets.only(left:20),child:
+                Wrap(
+                    spacing: 4.0,
+                children: List.generate(
+                  categories.length,
+                      (int index) {
+                    return ChoiceChip(
+                      label: Text(categories[index]),
+                      selected: _value == index,
+                      onSelected: (bool selected) {
+                        setState(() {
+                          _value = selected ? index : null;
+                        });
+                      },
+                    );
+                  },
+                ).toList())),),
 
                     (imageList.length != 0)
                         ? Padding(
@@ -307,63 +349,72 @@ class _AddDocumentState extends State<AddDocument> {
                                   mainAxisSize: MainAxisSize.max,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Padding(padding: EdgeInsets.all(10), child:
-                                    Button(
-                                      text: 'Import',
-                                      onPress: () async {
-                                        Navigator.of(context,
-                                            rootNavigator: true)
-                                            .pop();
-                                        ImagePicker imagePicker = ImagePicker();
-                                        XFile? ximage =
-                                            await imagePicker.pickImage(
-                                                source: ImageSource.gallery);
+                                    Padding(
+                                      padding: EdgeInsets.all(10),
+                                      child: Button(
+                                        text: 'Import',
+                                        onPress: () async {
+                                          Navigator.of(context,
+                                                  rootNavigator: true)
+                                              .pop();
+                                          ImagePicker imagePicker =
+                                              ImagePicker();
+                                          XFile? ximage =
+                                              await imagePicker.pickImage(
+                                                  source: ImageSource.gallery);
 
-                                        File image = File(ximage!.path);
+                                          File image = File(ximage!.path);
 
-                                        if (image != null) {
-                                          setState(() {
-
+                                          if (image != null) {
+                                            setState(() {
                                               imageList.add(image);
+                                            });
+                                          }
+                                          print("Image List Length:" +
+                                              imageList!.length.toString());
+                                        },
+                                        borderColor: new Color(0xFF208FEE),
+                                        textColor: Colors.white,
+                                        color: new Color(0xFF208FEE),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.all(10),
+                                      child: Button(
+                                        text: 'Scan',
+                                        onPress: () async {
+                                          Navigator.of(context,
+                                                  rootNavigator: true)
+                                              .pop();
 
-                                          });
-                                        }
-                                        print("Image List Length:" +
-                                            imageList!.length.toString());
-
-                                      },
-                                      borderColor: new Color(0xFF208FEE),
-                                      textColor: Colors.white,
-                                      color: new Color(0xFF208FEE),
-                                    ),),
-                                    Padding(padding: EdgeInsets.all(10), child:
-                                    Button(
-                                      text: 'Scan',
-                                      onPress: () async {
-                                        Navigator.of(context,
-                                            rootNavigator: true)
-                                            .pop();
-
-                                        FlutterGeniusScan.scanWithConfiguration({'source': 'camera',
-                                          'multiPage': true,})
-                                            .then((result) {
-                                              for(int i=0; i<result.length; i++) {
-                                                String imageUrl = result['scans'][i]['enhancedUrl'];
-                                                File file = new File(
-                                                    imageUrl.replaceAll(
-                                                        'file://', ''));
+                                          FlutterGeniusScan
+                                              .scanWithConfiguration({
+                                            'source': 'camera',
+                                            'multiPage': true,
+                                          }).then(
+                                            (result) {
+                                              for (int i = 0;
+                                                  i < result.length;
+                                                  i++) {
+                                                String imageUrl =
+                                                    result['scans'][i]
+                                                        ['enhancedUrl'];
+                                                File file = new File(imageUrl
+                                                    .replaceAll('file://', ''));
                                                 setState(() {
                                                   imageList.add(file);
                                                 });
                                               }
-                                              print('iuy ' + imageList.toString());
+                                              print('iuy ' +
+                                                  imageList.toString());
+                                            },
+                                          );
                                         },
-                                        );
-                                      },
-                                      borderColor: new Color(0xFF208FEE),
-                                      textColor: Colors.white,
-                                      color: new Color(0xFF208FEE),
-                                    ),)
+                                        borderColor: new Color(0xFF208FEE),
+                                        textColor: Colors.white,
+                                        color: new Color(0xFF208FEE),
+                                      ),
+                                    )
                                   ],
                                 )));
                       },
@@ -377,7 +428,37 @@ class _AddDocumentState extends State<AddDocument> {
 
                     Button(
                         text: 'Save',
-                        onPress: () {},
+                        onPress: () {
+                          String category='';
+                          switch(_value){
+                            case 1:
+                              {
+                                category = 'Prescription';
+                              }
+                              break;
+
+                            case 2:
+                              {
+                                category = 'Test Report';
+                              }
+                              break;
+                            case 3:
+                              {
+                                category = 'Certificate';
+                              }
+                              break;
+
+                          }
+
+
+                          Document document = new Document(nameController.text, illnessController.text, doctorController.text, dobController.text, commentsController.text, category, 'documentUrl', "ocr", chips);
+
+                          CollectionReference reference = FirebaseFirestore.instance.collection('Users');
+                          DateTime currentPhoneDate = DateTime. now();
+                          Timestamp time = Timestamp.fromDate(currentPhoneDate);
+                          reference.doc('64hhzztX4pqgPkdHg51N').collection('Documents').doc(time.toString()).set(document.toMap());
+                          
+                        },
                         color: const Color(0XFF208FEE),
                         borderColor: const Color(0XFF208FEE),
                         textColor: Colors.white)

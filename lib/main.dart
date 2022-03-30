@@ -1,3 +1,4 @@
+import 'package:cubic/UI/AddDocument.dart';
 import 'package:flutter/material.dart';
 
 import 'UI/SplashScreen.dart';
@@ -13,7 +14,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: new SplashScreen(),
+      home: new AddDocument(),
     );
   }
 }
