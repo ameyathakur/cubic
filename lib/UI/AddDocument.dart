@@ -1,10 +1,15 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cubic/Custom%20Models/Document.dart';
 import 'package:cubic/Widgets/Button.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -428,7 +433,7 @@ class _AddDocumentState extends State<AddDocument> {
 
                     Button(
                         text: 'Save',
-                        onPress: () {
+                        onPress: () async {
                           String category='';
                           switch(_value){
                             case 1:
@@ -450,12 +455,36 @@ class _AddDocumentState extends State<AddDocument> {
 
                           }
 
+                          final pdf = pw.Document();
 
-                          Document document = new Document(nameController.text, illnessController.text, doctorController.text, dobController.text, commentsController.text, category, 'documentUrl', "ocr", chips);
+                          for(int i=0; i<imageList.length; i++){
+                            final image = pw.MemoryImage(
+                              imageList[i].readAsBytesSync(),
+                            );
+
+                            pdf.addPage(pw.Page(build: (pw.Context context) {
+                              return pw.Center(
+                                child: pw.Image(image),
+                              ); // Center
+                            })); // Page
+                          }
+                          final Directory tempDir = Directory.systemTemp;
+                          final String fileName = "${Random().nextInt(10000)}.pdf";
+                          final File file = File('${tempDir.path}/$fileName');
+                          file.writeAsBytes(await pdf.save());
+
+                          firebase_storage.Reference ref =
+                          firebase_storage.FirebaseStorage.instance.ref('Documents');
+
+                          DateTime currentPhoneDate = DateTime.now();
+                          Timestamp time = Timestamp.fromDate(currentPhoneDate);
+                          TaskSnapshot taskSnapshot = await ref.child(time.toString()).putFile(file);
+                          String pdfUrl = await taskSnapshot.ref.getDownloadURL();
+
+                          Document document = new Document(nameController.text, illnessController.text, doctorController.text, dobController.text, commentsController.text, category, pdfUrl, "ocr", chips);
 
                           CollectionReference reference = FirebaseFirestore.instance.collection('Users');
-                          DateTime currentPhoneDate = DateTime. now();
-                          Timestamp time = Timestamp.fromDate(currentPhoneDate);
+
                           reference.doc('64hhzztX4pqgPkdHg51N').collection('Documents').doc(time.toString()).set(document.toMap());
                           
                         },
