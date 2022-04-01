@@ -586,4 +586,5 @@ class _UserProfileState extends State<UserProfile> {
           List<MemberModel>.from(l.map((model) => MemberModel.fromJson(model)));
     });
   }
+
 }

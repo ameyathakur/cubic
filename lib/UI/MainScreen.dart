@@ -1,9 +1,12 @@
 import 'package:cubic/UI/UserProfile.dart';
 import 'package:cubic/UI/documentDetails.dart';
 import 'package:cubic/Widgets/Button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import 'AddDocument.dart';
+import 'loginPage.dart';
 
 List<String> names = <String>[
   "26-02-21_Dr_Kishore_Fever",
@@ -52,8 +55,24 @@ List<String> images = <String>[
   'Assets/medical_certificate.png'
 ];
 
-class MainScreen extends StatelessWidget {
-  const MainScreen({Key? key}) : super(key: key);
+class MainScreen extends StatefulWidget {
+  @override
+  _MainScreenState createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+
+  Future<void> signout() async {
+
+    GoogleSignIn googleSignIn = GoogleSignIn();
+
+    try {
+      await FirebaseAuth.instance.signOut();
+      googleSignIn.signOut();
+    } catch (e) {
+      print(e);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,21 +119,21 @@ class MainScreen extends StatelessWidget {
                   // Update the state of the app
                   // ...
                   // Then close the drawer
-                  Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (BuildContext context) =>
-                              UserProfile()));
-
-                  // Navigator.of(context).pop();
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      builder: (BuildContext context) => UserProfile()));
                 },
               ),
               ListTile(
-                title: const Text('Item 2'),
-                onTap: () {
+                title: const Text('Sign out'),
+                onTap: ()async {
                   // Update the state of the app
-                  // ...
+                  signout();
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext context) => login()));
                   // Then close the drawer
-                  Navigator.pop(context);
+                  //Navigator.pop(context);
                 },
               ),
             ],
@@ -122,7 +141,7 @@ class MainScreen extends StatelessWidget {
         ),
         body: SingleChildScrollView(
           child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Container(
                 padding: EdgeInsets.only(top: 50, bottom: 20),
                 decoration: BoxDecoration(
@@ -141,7 +160,7 @@ class MainScreen extends StatelessWidget {
                         decoration: InputDecoration(
                             contentPadding: EdgeInsets.only(left: 10.0),
                             hintText:
-                                'Search by Prescription, Doctor’s name or Disease',
+                            'Search by Prescription, Doctor’s name or Disease',
                             border: InputBorder.none),
                       ),
                     ))),
@@ -171,7 +190,7 @@ class MainScreen extends StatelessWidget {
                           width: 50.0,
                           child: Image.asset(images[index]),
                         ),
-                        Flexible(child: Text(names[index]))
+                        Flexible(child: Text(names[index])),
                       ]));
                 })
           ]),

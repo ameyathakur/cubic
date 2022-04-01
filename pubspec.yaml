@@ -39,12 +39,17 @@ dependencies:
   amplify_api: ^0.4.0
   pdf: ^3.6.0
 
+
   flutter_lints: ^1.0.0
   dropdown_button2: ^1.2.0
   timer_count_down: ^2.2.1
   firebase_core: ^1.13.1
   image_picker: ^0.8.4
-
+  pin_code_fields: ^7.3.0
+  fluttertoast: ^8.0.9
+  google_sign_in: ^5.0.0-nullsafety
+  permission_handler: ^9.2.0
+  otp_text_field: ^1.1.2
   firebase_storage: ^10.2.9
   firebase_auth: ^3.3.11
   cloud_firestore: ^3.1.10
