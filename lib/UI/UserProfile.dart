@@ -9,6 +9,7 @@ import 'package:cubic/UI/AddDocument.dart';
 import 'package:cubic/UI/RegisterScreen.dart';
 import 'package:cubic/Widgets/Button.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -25,13 +26,14 @@ class _UserProfileState extends State<UserProfile> {
   String email = '', contact = '';
   List<dynamic> subusers = [];
   List<MemberModel> membersi = [];
-  late User user;
   List<TextEditingController> controllers = [];
   FirebaseFirestore firestore = FirebaseFirestore.instance;
   List<MemberModel> listData = [];
+  String uid = "";
 
   void initState() {
     super.initState();
+
     getFirebase();
   }
 
@@ -52,7 +54,7 @@ class _UserProfileState extends State<UserProfile> {
 
         ),
         body: FutureBuilder<DocumentSnapshot>(
-            future: users.doc('64hhzztX4pqgPkdHg51N').get(),
+            future: users.doc(uid).get(),
             builder: (BuildContext context,
                 AsyncSnapshot<DocumentSnapshot> snapshot) {
               if (snapshot.hasError) {
@@ -414,7 +416,7 @@ class _UserProfileState extends State<UserProfile> {
 
                                                                         users
                                                                             .doc(
-                                                                                '64hhzztX4pqgPkdHg51N')
+                                                                                uid)
                                                                             .update({
                                                                           'members': membersi
                                                                               .map((i) => i.toMap())
@@ -468,7 +470,7 @@ class _UserProfileState extends State<UserProfile> {
                                                                 membersi[index].deleted = true;
                                                                 users
                                                                     .doc(
-                                                                        '64hhzztX4pqgPkdHg51N')
+                                                                        uid)
                                                                     .update({
                                                                   'members': membersi
                                                                       .map((i) =>
@@ -574,9 +576,12 @@ class _UserProfileState extends State<UserProfile> {
   }
 
   getFirebase() async {
+
+    uid = FirebaseAuth.instance.currentUser!.uid;
+
     CollectionReference users = FirebaseFirestore.instance.collection('Users');
     DocumentSnapshot documentSnapshot =
-        await users.doc('64hhzztX4pqgPkdHg51N').get();
+        await users.doc(uid).get();
 
     setState(() {
       List<dynamic> data = documentSnapshot.get('members');
@@ -586,5 +591,6 @@ class _UserProfileState extends State<UserProfile> {
           List<MemberModel>.from(l.map((model) => MemberModel.fromJson(model)));
     });
   }
+
 
 }

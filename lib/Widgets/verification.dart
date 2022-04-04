@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cubic/Widgets/Button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -7,7 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:timer_count_down/timer_count_down.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import '../Custom Models/MemberModel.dart';
 import '../UI/MainScreen.dart';
+import '../UI/PaymentScreen.dart';
 import '../UI/RegisterScreen.dart';
 import 'package:otp_text_field/otp_field.dart';
 import 'package:otp_text_field/style.dart';
@@ -22,7 +25,6 @@ class verification extends StatefulWidget {
 }
 
 class _verificationState extends State<verification> {
-
   @override
   void initState() {
     super.initState();
@@ -30,6 +32,9 @@ class _verificationState extends State<verification> {
 
     phoneSignIn(phoneNumber: widget.phone_Number.toString());
   }
+
+  CollectionReference collectionReference =
+      FirebaseFirestore.instance.collection('Users');
 
   late Timer timer;
   bool clicked = false;
@@ -69,20 +74,56 @@ class _verificationState extends State<verification> {
                   msg: "Mobile number verified successfully",
                   gravity: ToastGravity.BOTTOM,
                   toastLength: Toast.LENGTH_LONG),
-              if (value.additionalUserInfo?.isNewUser == false)
-                {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (BuildContext context) => MainScreen())),
-                }
-              else
-                {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (BuildContext context) => RegisterScreen())),
-                }
+              await _auth
+                  .signInWithCredential(credential)
+                  .then((value) async => {
+                        Fluttertoast.showToast(
+                            msg: "Mobile number verified successfully",
+                            gravity: ToastGravity.BOTTOM,
+                            toastLength: Toast.LENGTH_LONG),
+                        await collectionReference
+                            .doc(value.user?.uid)
+                            .get()
+                            .then((DocumentSnapshot documentSnapshot) {
+                          bool paid = false;
+                          if (!documentSnapshot.exists) {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        RegisterScreen()));
+                          } else {
+                            List<dynamic> data =
+                                documentSnapshot.get('members');
+
+                            List<MemberModel> membersi = [];
+                            Iterable l = data;
+                            membersi = List<MemberModel>.from(
+                                l.map((model) => MemberModel.fromJson(model)));
+
+                            for (int i = 0; i < membersi.length; i++) {
+
+                              if (membersi[i].subscribed == true) {
+                                paid = true;
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            MainScreen()));
+                                return;
+                              }
+                            }
+
+                            if (paid == false) {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          PaymentScreen()));
+                            }
+                          }
+                        })
+                      })
             });
       },
       verificationFailed: (FirebaseAuthException e) {
@@ -134,26 +175,53 @@ class _verificationState extends State<verification> {
                     // Sign the user in (or link) with the credential
                     await _auth
                         .signInWithCredential(credential)
-                        .then((value) => {
+                        .then((value) async => {
                               timer.cancel(),
                               print('1209'),
                               if (value.additionalUserInfo?.isNewUser == false)
-                                {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (BuildContext context) =>
-                                              MainScreen())),
-                                }
-                              else
-                                {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (BuildContext context) =>
-                                              RegisterScreen())),
-                                }
-                            });
+                    await collectionReference
+                        .doc(value.user?.uid)
+                        .get()
+                        .then((DocumentSnapshot documentSnapshot) {
+                    bool paid = false;
+                    if (!documentSnapshot.exists) {
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                    RegisterScreen()));
+                    } else {
+                    List<dynamic> data =
+                    documentSnapshot. get ('members');
+
+                    List<MemberModel> membersi = [];
+                    Iterable l = data;
+                    membersi = List<MemberModel>.from(
+                    l.map((model) => MemberModel.fromJson(model)));
+
+                    for (int i = 0; i < membersi.length; i++) {
+                    print('yrlvsh ' + membersi[i].subscribed.toString());
+                    if (membersi[i].subscribed == true) {
+                    paid = true;
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                    MainScreen()));
+                    return;
+                    }
+                    }
+
+                    if (paid == false) {
+                    Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                    PaymentScreen()));
+                    }
+                    }
+                    }
+                            )});
                   }
                 } on FirebaseAuthException catch (e) {
                   if (e.code == 'invalid-verification-code') {
@@ -181,25 +249,7 @@ class _verificationState extends State<verification> {
                               .then((value) => {
                                     timer.cancel(),
                                     print('1209'),
-                                    if (value.additionalUserInfo?.isNewUser ==
-                                        false)
-                                      {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder:
-                                                    (BuildContext context) =>
-                                                        MainScreen())),
-                                      }
-                                    else
-                                      {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder:
-                                                    (BuildContext context) =>
-                                                        RegisterScreen())),
-                                      }
+
                                   });
                         }
                       } on FirebaseAuthException catch (e) {

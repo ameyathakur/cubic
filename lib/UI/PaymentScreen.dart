@@ -6,6 +6,7 @@ import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cubic/UI/MainScreen.dart';
 import 'package:cubic/Widgets/Button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
@@ -25,7 +26,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   List<MemberModel> membersi = [];
   Map<String, bool> names = {};
   int price = 0;
-  late User user;
+  // late User user;
   CollectionReference users = FirebaseFirestore.instance.collection('Users');
   CollectionReference keyReference = FirebaseFirestore.instance.collection('Razorpay');
   String rzp_key='';
@@ -43,7 +44,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     try {
 
-      DocumentSnapshot documentSnapshot = await users.doc('64hhzztX4pqgPkdHg51N').get();
+      DocumentSnapshot documentSnapshot = await users.doc(FirebaseAuth.instance.currentUser!.uid).get();
       DocumentSnapshot keySnapshot = await keyReference.doc('id').get();
 
       setState(() {

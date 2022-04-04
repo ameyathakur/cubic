@@ -79,12 +79,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     Firebase.initializeApp();
 
-    MemberModel firstModel = new MemberModel(
-        name: namecontroller.text.toString(),
-        relation: "Self",
-        adhar: adharcontroller.text.toString(),
-        gender: selectedGender,
-        dob: dobcontroller.text.toString());
+
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -104,10 +99,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     key: _formKey,
                     child: Column(
                       children: [
-                        (FirebaseAuth.instance.currentUser?.emailVerified
-                                     ==
-                                true)
-                            ? Column(
+                        if(FirebaseAuth.instance.currentUser?.phoneNumber == null)
+                             Column(
                                 children: [
                                   Padding(
                                       padding:
@@ -176,19 +169,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                                               .underline,
                                                                       onCompleted:
                                                                           (pin) async {
-                                                                        otpCode =
-                                                                            pin;
-
+                                                                        otpCode = pin;
 
                                                                         AuthCredential pauthCreds = PhoneAuthProvider.credential(
                                                                             verificationId: verificationId, smsCode: otpCode);
 
-                                                                        if(pauthCreds.token != null) {
                                                                           signIn(pauthCreds);
-                                                                        }
-                                                                        else{
-                                                                          Fluttertoast.showToast(msg: 'Wrong OTP');
-                                                                        }
                                                                       },
                                                                     ),
                                                                     Padding(padding: EdgeInsets.all(20), child:
@@ -197,15 +183,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                                             'Verify',
                                                                         onPress:
                                                                             () async {
+
                                                                               AuthCredential pauthCreds = PhoneAuthProvider.credential(
                                                                                   verificationId: verificationId, smsCode: otpCode);
 
-                                                                              if(pauthCreds.token != null) {
-                                                                                signIn(pauthCreds);
-                                                                              }
-                                                                              else{
-                                                                                Fluttertoast.showToast(msg: 'Wrong OTP');
-                                                                              }
+                                                                              signIn(pauthCreds);
                                                                         },
                                                                         color: const Color(
                                                                             0xFF208FEE),
@@ -222,8 +204,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                                   new Color(0xFF208FEE),
                                               textColor: Colors.white)))
                                 ],
-                              )
-                            : Column(
+                              ),
+
+                        if(FirebaseAuth.instance.currentUser?.emailVerified == false)
+                        Column(
                                 children: [
                                   Center(
                                     child: GestureDetector(
@@ -420,8 +404,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         color: Colors.black, width: 1.5),
                                     borderRadius: BorderRadius.circular(7)),
                                 child: Center(
-                                  child: TextField(
+                                  child: TextFormField(
                                     keyboardType: TextInputType.number,
+                                    validator: (value) {
+                                      if (value == null ||
+                                          value.isEmpty) {
+                                        return 'Enter Aadhar No.';
+                                      }
+                                      else if(value.length != 12){
+                                        return 'Enter Valid Aadhar No.';
+                                      }
+                                      return null;
+                                    },
                                     controller: adharcontroller,
                                     decoration: InputDecoration(
                                         contentPadding:
@@ -473,48 +467,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             text: 'Register',
                             onPress: () async {
 
+                              print('ytre ' + FirebaseAuth.instance.currentUser!.phoneNumber.toString());
                               if (_formKey.currentState!.validate() &&
-                                  phone_number.length >= 10 &&
                                   FirebaseAuth.instance.currentUser?.phoneNumber != null) {
-                                //   // If the
-                                //
-                                //
-                                //form is valid, display a snackbar. In the real world,
-                                //   // you'd often call a server or save the information in a database.
-                                //   ScaffoldMessenger.of(context).showSnackBar(
-                                //     const SnackBar(content: Text('Registering')));
-                                //
-                                //       // Add the following line to add API plugin to your app
-                                //       if (!Amplify.isConfigured) {
-                                //     Amplify.addPlugin(AmplifyAPI(
-                                //         modelProvider:
-                                //         ModelProvider.instance));
-                                //
-                                //     await Amplify.configure(amplifyconfig);
-                                //   }
-                                //
-                                //   try {
-
-                                //     final request = ModelMutations.create(user);
-                                //     final response = await Amplify.API
-                                //         .mutate(request: request)
-                                //         .response;
-                                //
-                                //     User? createdUser = response.data;
-                                //     if (createdUser == null) {
-                                //       print('errors: ' + response.errors.toString());
-                                //       return;
-                                //     }
-                                //     print('Mutation result: ' + createdUser.id);
-                                //   } on ApiException catch (e) {
-                                //     print('Mutation failed: $e');
-                                //   } on AmplifyAlreadyConfiguredException {
-                                //     print(
-                                //         "Tried to reconfigure Amplify; this can occur when your app restarts on Android.");
-                                //   }
-
+                                MemberModel firstModel = new MemberModel(
+                                    name: namecontroller.text.toString(),
+                                    relation: "Self",
+                                    adhar: adharcontroller.text,
+                                    gender: selectedGender,
+                                    dob: dobcontroller.text.toString());
                                 List data = <MemberModel>[];
                                 data.add(firstModel);
+
+                                print('lkj ' + firstModel.adhar.toString());
 
                                 for (int i = 0; i < members.length; i++) {
                                   data.add(members[i].memberModel);
@@ -528,9 +493,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                                 users.doc(FirebaseAuth.instance.currentUser!.uid)
                                     .set({
-                                      'id': phone_number,
+                                      'id': FirebaseAuth.instance.currentUser!.uid,
                                       'emaild_id': FirebaseAuth.instance.currentUser!.email.toString(),
-                                      'contact_no': phone_number,
+                                      'contact_no': FirebaseAuth.instance.currentUser?.phoneNumber,
                                       'members':
                                           data.map((i) => i.toMap()).toList(),
                                     })
@@ -565,7 +530,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         builder: (BuildContext context) =>
                                             PaymentScreen()));
                               }
-                              else {
+                              else if(FirebaseAuth.instance.currentUser!.phoneNumber == null){
                                 Fluttertoast.showToast(
                                     msg: 'Verify contact number');
                               }
@@ -647,8 +612,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   signIn(AuthCredential authCreds) async {
     //now link these credentials with the existing user
-    FirebaseAuth.instance.currentUser!.linkWithCredential(authCreds);
-    Fluttertoast.showToast(msg: 'Mobile number added successfully');
+    FirebaseAuth.instance.currentUser!.linkWithCredential(authCreds).then((value) => Fluttertoast.showToast(msg: 'Mobile number added successfully'));
     Navigator.pop(context);
     verified = true;
   }
