@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cubic/Widgets/Button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -34,7 +33,7 @@ class _verificationState extends State<verification> {
   }
 
   CollectionReference collectionReference =
-      FirebaseFirestore.instance.collection('Users');
+  FirebaseFirestore.instance.collection('Users');
 
   late Timer timer;
   bool clicked = false;
@@ -69,62 +68,10 @@ class _verificationState extends State<verification> {
         setState(() {
           otpFieldController.set(pin);
         });
-        await _auth.signInWithCredential(credential).then((value) async => {
-              Fluttertoast.showToast(
-                  msg: "Mobile number verified successfully",
-                  gravity: ToastGravity.BOTTOM,
-                  toastLength: Toast.LENGTH_LONG),
-              await _auth
-                  .signInWithCredential(credential)
-                  .then((value) async => {
-                        Fluttertoast.showToast(
-                            msg: "Mobile number verified successfully",
-                            gravity: ToastGravity.BOTTOM,
-                            toastLength: Toast.LENGTH_LONG),
-                        await collectionReference
-                            .doc(value.user?.uid)
-                            .get()
-                            .then((DocumentSnapshot documentSnapshot) {
-                          bool paid = false;
-                          if (!documentSnapshot.exists) {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (BuildContext context) =>
-                                        RegisterScreen()));
-                          } else {
-                            List<dynamic> data =
-                                documentSnapshot.get('members');
 
-                            List<MemberModel> membersi = [];
-                            Iterable l = data;
-                            membersi = List<MemberModel>.from(
-                                l.map((model) => MemberModel.fromJson(model)));
-
-                            for (int i = 0; i < membersi.length; i++) {
-
-                              if (membersi[i].subscribed == true) {
-                                paid = true;
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (BuildContext context) =>
-                                            MainScreen()));
-                                return;
-                              }
-                            }
-
-                            if (paid == false) {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          PaymentScreen()));
-                            }
-                          }
-                        })
-                      })
-            });
+        if(FirebaseAuth.instance.currentUser == null) {
+          signInAndNavigate(credential);
+        }
       },
       verificationFailed: (FirebaseAuthException e) {
         timer.cancel();
@@ -159,7 +106,10 @@ class _verificationState extends State<verification> {
             OTPTextField(
               length: 6,
               controller: otpFieldController,
-              width: MediaQuery.of(context).size.width,
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width,
               fieldWidth: 50,
               style: TextStyle(fontSize: 15),
               textFieldAlignment: MainAxisAlignment.spaceAround,
@@ -167,66 +117,16 @@ class _verificationState extends State<verification> {
               onCompleted: (pin) async {
                 otpCode = pin;
 
-                PhoneAuthCredential credential = PhoneAuthProvider.credential(
-                    verificationId: verificat, smsCode: otpCode);
+                if (FirebaseAuth.instance.currentUser == null) {
+                  print('sha ' + '1');
+                  PhoneAuthCredential credential = PhoneAuthProvider.credential(
+                      verificationId: verificat, smsCode: otpCode);
+                  timer.cancel();
 
-                try {
-                  {
-                    // Sign the user in (or link) with the credential
-                    await _auth
-                        .signInWithCredential(credential)
-                        .then((value) async => {
-                              timer.cancel(),
-                              print('1209'),
-                              if (value.additionalUserInfo?.isNewUser == false)
-                    await collectionReference
-                        .doc(value.user?.uid)
-                        .get()
-                        .then((DocumentSnapshot documentSnapshot) {
-                    bool paid = false;
-                    if (!documentSnapshot.exists) {
-                    Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                    builder: (BuildContext context) =>
-                    RegisterScreen()));
-                    } else {
-                    List<dynamic> data =
-                    documentSnapshot. get ('members');
-
-                    List<MemberModel> membersi = [];
-                    Iterable l = data;
-                    membersi = List<MemberModel>.from(
-                    l.map((model) => MemberModel.fromJson(model)));
-
-                    for (int i = 0; i < membersi.length; i++) {
-                    print('yrlvsh ' + membersi[i].subscribed.toString());
-                    if (membersi[i].subscribed == true) {
-                    paid = true;
-                    Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                    builder: (BuildContext context) =>
-                    MainScreen()));
-                    return;
-                    }
-                    }
-
-                    if (paid == false) {
-                    Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                    builder: (BuildContext context) =>
-                    PaymentScreen()));
-                    }
-                    }
-                    }
-                            )});
-                  }
-                } on FirebaseAuthException catch (e) {
-                  if (e.code == 'invalid-verification-code') {
-                    Fluttertoast.showToast(msg: 'You have entered wrong OTP');
-                  }
+                  signInAndNavigate(credential);
+                }
+                else {
+                  print('sha ' + '2');
                 }
               },
             ),
@@ -237,26 +137,14 @@ class _verificationState extends State<verification> {
                     onPress: () async {
                       timer.cancel();
                       print('765');
-                      PhoneAuthCredential credential =
-                          PhoneAuthProvider.credential(
-                              verificationId: verificat, smsCode: otpCode);
 
-                      try {
-                        {
-                          // Sign the user in (or link) with the credential
-                          await _auth
-                              .signInWithCredential(credential)
-                              .then((value) => {
-                                    timer.cancel(),
-                                    print('1209'),
+                      if (FirebaseAuth.instance.currentUser == null) {
+                        PhoneAuthCredential credential =
+                        PhoneAuthProvider.credential(
+                            verificationId: verificat, smsCode: otpCode);
+                        timer.cancel();
 
-                                  });
-                        }
-                      } on FirebaseAuthException catch (e) {
-                        if (e.code == 'invalid-verification-code') {
-                          Fluttertoast.showToast(
-                              msg: 'You have entered wrong OTP');
-                        }
+                        signInAndNavigate(credential);
                       }
                     },
                     color: const Color(0xFF208FEE),
@@ -292,40 +180,62 @@ class _verificationState extends State<verification> {
       ),
     );
   }
-}
 
-// _textFiledOTP({bool? first, last}) {
-//   return Container(
-//     height: 70,
-//     child: AspectRatio(
-//         aspectRatio: 0.6,
-//         child: TextField(
-//           autofocus: true,
-//           onChanged: (value) {
-//             // if(value.length==1 && last==false){
-//             //   FocusScope.of(context).nextFocus();
-//             // }
-//             // if(value.length==1 && first==false){
-//             //   FocusScope.of(context).previousFocus();
-//             // }
-//           },
-//           showCursor: true,
-//           readOnly: false,
-//           textAlign: TextAlign.center,
-//           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-//           keyboardType: TextInputType.number,
-//           maxLength: 1,
-//           decoration: InputDecoration(
-//               counter: Offstage(),
-//               enabledBorder: OutlineInputBorder(
-//                   borderRadius: BorderRadius.circular(10),
-//                   borderSide: BorderSide(color: Colors.black)),
-//               focusedBorder: OutlineInputBorder(
-//                   borderSide: BorderSide(
-//                     width: 2,
-//                     color: Colors.black,
-//                   ),
-//                   borderRadius: BorderRadius.circular(10))),
-//         )),
-//   );
-// }
+  signInAndNavigate(AuthCredential credential) async {
+    try{
+      String uid;
+      await _auth.signInWithCredential(credential)
+          .then((value) async => {
+        Fluttertoast.showToast(
+            msg: "Mobile number verified successfully",
+            gravity: ToastGravity.BOTTOM,
+            toastLength: Toast.LENGTH_LONG),
+        uid = value.user!.uid,
+        await collectionReference
+            .doc(uid)
+            .get()
+            .then((DocumentSnapshot documentSnapshot) {
+          bool paid = false;
+          if (!documentSnapshot.exists) {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        RegisterScreen()));
+          } else {
+            List<dynamic> data =
+            documentSnapshot.get('members');
+
+            List<MemberModel> membersi = [];
+            Iterable l = data;
+            membersi = List<MemberModel>.from(
+                l.map((model) => MemberModel.fromJson(model)));
+
+            for (int i = 0; i < membersi.length; i++) {
+
+              if (membersi[i].subscribed == true) {
+                paid = true;
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) =>
+                            MainScreen()));
+                return;
+              }
+            }
+
+            if (paid == false) {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) =>
+                          PaymentScreen()));
+            }
+          }
+        }),
+      });}catch (error) {
+      print('Sanjita ' + error.toString());
+    }
+  }
+
+}

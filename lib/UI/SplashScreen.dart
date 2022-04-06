@@ -23,7 +23,6 @@ class _Splashscreenstate extends State<SplashScreen>
 
   @override
   void initState() {
-    Firebase.initializeApp();
     WidgetsFlutterBinding.ensureInitialized();
     super.initState();
 
@@ -36,7 +35,7 @@ class _Splashscreenstate extends State<SplashScreen>
 
   void timer() async {
     //final FirebaseAuth _auth = FirebaseAuth.instance;
-    getState();
+    await getState().then((value) =>
     Timer(const Duration(seconds: 5), () async {
 
       switch(number) {
@@ -70,7 +69,7 @@ class _Splashscreenstate extends State<SplashScreen>
       // Navigator.of(context)
       //      .pushReplacement(MaterialPageRoute(builder: (context) => login()));
       //     Fluttertoast.showToast(msg:"New User",gravity:ToastGravity.BOTTOM);
-    });
+    }));
   }
 
   late final AnimationController _animationController;
@@ -100,6 +99,7 @@ class _Splashscreenstate extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    Firebase.initializeApp();
     timer();
     return Scaffold(
       backgroundColor: const Color(0xFFF1ECEC),
@@ -132,44 +132,50 @@ class _Splashscreenstate extends State<SplashScreen>
   }
 
   Future<void> getState() async {
-    bool paid = false;
+    bool paid = false,
+        exist = false;
     User? user = FirebaseAuth.instance.currentUser;
-    CollectionReference collectionReference =  FirebaseFirestore.instance.collection('Users');
+    CollectionReference collectionReference = FirebaseFirestore.instance
+        .collection('Users');
 
-    if(user == null){
+    if (user == null) {
       number = 1;
       return;
     }
     await collectionReference.doc(user.uid).get()
         .then((DocumentSnapshot documentSnapshot) {
-
       if (!documentSnapshot.exists) {
         number = 2;
         return;
       }
+      else {
+        exist = true;
+      }
     });
 
-    DocumentSnapshot documentSnapshot =
-    await collectionReference.doc(user.uid).get();
+    if (exist) {
+      DocumentSnapshot documentSnapshot =
+      await collectionReference.doc(user.uid).get();
 
-    List<dynamic> data = documentSnapshot.get('members');
+      List<dynamic> data = documentSnapshot.get('members');
 
-    Iterable l = data;
-    membersi = List<MemberModel>.from(
-        l.map((model) => MemberModel.fromJson(model)));
+      Iterable l = data;
+      membersi = List<MemberModel>.from(
+          l.map((model) => MemberModel.fromJson(model)));
 
-    for(int i=0; i<membersi.length; i++){
-      if(membersi[i].subscribed == true){
-        paid = true;
-        break;
+      for (int i = 0; i < membersi.length; i++) {
+        if (membersi[i].subscribed == true) {
+          paid = true;
+          break;
+        }
       }
-    }
 
-    if(paid){
-      number = 4;
+      if (paid) {
+        number = 4;
+        return;
+      }
+      number = 3;
       return;
     }
-    number = 3;
-    return;
   }
 }
