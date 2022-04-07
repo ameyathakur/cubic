@@ -472,13 +472,9 @@ class _AddDocumentState extends State<AddDocument> {
                           final String fileName = "${Random().nextInt(10000)}.pdf";
                           final File file = File('${tempDir.path}/$fileName');
                           file.writeAsBytes(await pdf.save());
-
-                          firebase_storage.Reference ref =
-                          firebase_storage.FirebaseStorage.instance.ref('Documents');
-
                           DateTime currentPhoneDate = DateTime.now();
                           Timestamp time = Timestamp.fromDate(currentPhoneDate);
-                          TaskSnapshot taskSnapshot = await ref.child(time.toString()).putFile(file);
+                          TaskSnapshot taskSnapshot = await FirebaseStorage.instance.ref(time.toString()).putFile(file);
                           String pdfUrl = await taskSnapshot.ref.getDownloadURL();
 
                           Document document = new Document(nameController.text, illnessController.text, doctorController.text, dobController.text, commentsController.text, category, pdfUrl, "ocr", chips);

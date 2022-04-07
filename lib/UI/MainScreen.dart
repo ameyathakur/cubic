@@ -128,7 +128,7 @@ class _MainScreenState extends State<MainScreen> {
                 onTap: ()async {
                   // Update the state of the app
                   signout();
-                  Navigator.push(
+                  Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                           builder: (BuildContext context) => login()));

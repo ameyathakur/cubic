@@ -215,7 +215,7 @@ class _verificationState extends State<verification> {
 
               if (membersi[i].subscribed == true) {
                 paid = true;
-                Navigator.push(
+                Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                         builder: (BuildContext context) =>
@@ -225,7 +225,7 @@ class _verificationState extends State<verification> {
             }
 
             if (paid == false) {
-              Navigator.push(
+              Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                       builder: (BuildContext context) =>

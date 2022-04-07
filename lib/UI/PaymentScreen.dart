@@ -8,6 +8,7 @@ import 'package:cubic/UI/MainScreen.dart';
 import 'package:cubic/Widgets/Button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 import '../Custom Models/MemberModel.dart';
@@ -120,14 +121,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             try {
                               var options = {
                                 'key': rzp_key,
+
                                 'currency': 'INR',
                                 'theme': {
-                                  'color': '#b83d0f'
+                                  'color': '#FFBD59'
                                 },
-                                'amount': 10000,
+                                'amount': price*100,
                                 //in the smallest currency sub-unit.
                                 'name': 'Cubic',
-                                'order_id': 'order_EMBFqjDHEEn80l',
                                 // Generate order_id using Orders API
                                 'description': 'Subscription',
                                 'timeout': 60,
@@ -141,7 +142,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             }
 
                             catch(e){
-                              print('sundarwadi ' + e.toString());
+                              print('error ' + e.toString());
                             }
 
                           },
@@ -174,22 +175,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    for(int i=0; i<membersi.length; i++){
-      if(names[membersi[i].name] == true){
-        membersi[i].deleted = false;
-      }
-      else{
-        membersi[i].deleted = true;
-      }
-    }
-
-    users.doc('64hhzztX4pqgPkdHg51N').update({'members': membersi.map((i) => i.toMap())
-        .toList()});
-
-    Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-            builder: (BuildContext context) =>
-                MainScreen()));
+    Fluttertoast.showToast(msg: 'Payment Faild');
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {

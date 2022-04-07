@@ -33,45 +33,6 @@ class _Splashscreenstate extends State<SplashScreen>
     _animationController.repeat(reverse: true);
   }
 
-  void timer() async {
-    //final FirebaseAuth _auth = FirebaseAuth.instance;
-    await getState().then((value) =>
-    Timer(const Duration(seconds: 5), () async {
-
-      switch(number) {
-        case 1: {
-          Navigator.of(context)
-               .pushReplacement(MaterialPageRoute(builder: (context) => login()));
-
-        }
-        break;
-
-        case 2: {
-          Navigator.of(context)
-              .pushReplacement(MaterialPageRoute(builder: (context) => RegisterScreen()));
-        }
-        break;
-
-        case 3: {
-          Navigator.of(context)
-              .pushReplacement(MaterialPageRoute(builder: (context) => PaymentScreen()));
-        }
-        break;
-
-        case 4: {
-          Navigator.of(context)
-              .pushReplacement(MaterialPageRoute(builder: (context) => MainScreen()));
-        }
-
-        break;
-
-      }
-      // Navigator.of(context)
-      //      .pushReplacement(MaterialPageRoute(builder: (context) => login()));
-      //     Fluttertoast.showToast(msg:"New User",gravity:ToastGravity.BOTTOM);
-    }));
-  }
-
   late final AnimationController _animationController;
   late Animation<double> _animation;
 
@@ -99,69 +60,100 @@ class _Splashscreenstate extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    Firebase.initializeApp();
-    timer();
     return Scaffold(
       backgroundColor: const Color(0xFFF1ECEC),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            FadeTransition(
-              opacity: _animation,
-              child: Image.asset('Assets/Logo.png'),
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SlideTransition(
-                  position: _leftToRightAnim,
-                  child: const Text('SIMPLIFY|TRANSFORM|OUTPERFORM'),
-                ),
-                SlideTransition(
-                  position: _rightToLeftAnim,
-                  child: const Text('APP BY TRANSEUNT'),
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
-    );
+      body: FutureBuilder(
+                future: getState(),
+                builder: (context, snapshot) {
+                  // Check for errors
+                  if (snapshot.hasError) {
+                    Fluttertoast.showToast(msg: snapshot.error.toString());
+                  }
+
+                  // Once complete, show your application
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    Timer(const Duration(seconds: 5), () async {
+                      switch (number) {
+                        case 1:
+                          {
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                    builder: (context) => login()));
+                          }
+                          break;
+
+                        case 2:
+                          {
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                    builder: (context) => RegisterScreen()));
+                          }
+                          break;
+
+                        case 3:
+                          {
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                    builder: (context) => PaymentScreen()));
+                          }
+                          break;
+
+                        case 4:
+                          {
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                    builder: (context) => MainScreen()));
+                          }
+
+                          break;
+                      }
+                    });
+                  }
+                return Center(
+                      child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                      FadeTransition(
+                      opacity: _animation,
+                      child: Image.asset('Assets/Logo.png'),
+                  )]));
+                }),
+      );
   }
 
   Future<void> getState() async {
-    bool paid = false,
-        exist = false;
+    await Firebase.initializeApp();
+    bool paid = false, exist = false;
     User? user = FirebaseAuth.instance.currentUser;
-    CollectionReference collectionReference = FirebaseFirestore.instance
-        .collection('Users');
+    CollectionReference collectionReference =
+        FirebaseFirestore.instance.collection('Users');
 
     if (user == null) {
       number = 1;
       return;
     }
-    await collectionReference.doc(user.uid).get()
+    await collectionReference
+        .doc(user.uid)
+        .get()
         .then((DocumentSnapshot documentSnapshot) {
       if (!documentSnapshot.exists) {
         number = 2;
         return;
-      }
-      else {
+      } else {
         exist = true;
       }
     });
 
     if (exist) {
       DocumentSnapshot documentSnapshot =
-      await collectionReference.doc(user.uid).get();
+          await collectionReference.doc(user.uid).get();
 
       List<dynamic> data = documentSnapshot.get('members');
 
       Iterable l = data;
-      membersi = List<MemberModel>.from(
-          l.map((model) => MemberModel.fromJson(model)));
+      membersi =
+          List<MemberModel>.from(l.map((model) => MemberModel.fromJson(model)));
 
       for (int i = 0; i < membersi.length; i++) {
         if (membersi[i].subscribed == true) {
@@ -174,6 +166,7 @@ class _Splashscreenstate extends State<SplashScreen>
         number = 4;
         return;
       }
+
       number = 3;
       return;
     }
