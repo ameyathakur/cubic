@@ -25,6 +25,7 @@ module.exports = {
     "import",
   ],
   rules: {
+    "indent": "off",
     "quotes": ["error", "double"],
     "import/no-unresolved": 0,
   },

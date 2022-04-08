@@ -121,7 +121,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                             try {
                               var options = {
                                 'key': rzp_key,
-
                                 'currency': 'INR',
                                 'theme': {
                                   'color': '#FFBD59'
@@ -129,13 +128,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
                                 'amount': price*100,
                                 //in the smallest currency sub-unit.
                                 'name': 'Cubic',
-                                // Generate order_id using Orders API
                                 'description': 'Subscription',
                                 'timeout': 60,
                                 // in seconds
                                 'prefill': {
-                                  'contact': 'contact',
-                                  'email': 'email'
+                                  'contact': contact,
+                                  'email': email
                                 }
                               };
                               _razorpay.open(options);
@@ -156,6 +154,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   }
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
+    Fluttertoast.showToast(msg: response.signature.toString());
     for(int i=0; i<membersi.length; i++){
       if(names[membersi[i].name] == true){
         membersi[i].deleted = false;
@@ -182,4 +181,3 @@ class _PaymentScreenState extends State<PaymentScreen> {
     print('pratisaad ' + response.toString());
   }
 }
-

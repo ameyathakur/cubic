@@ -1,9 +1,10 @@
 class Document{
-  String name, illness, doctor, dov, comments, category, documentUrl, ocr;
+  String name, illness, doctor, dov, comments, category;
   List<String> tags = [];
+  List<String> images = [];
 
   Document(this.name, this.illness, this.doctor, this.dov, this.comments,
-      this.category, this.documentUrl, this.ocr, this.tags);
+      this.category, this.images, this.tags);
 
   Map<String,dynamic> toMap(){
     return {
@@ -13,8 +14,7 @@ class Document{
       'date of visit' : dov,
       'comments' : comments,
       'category' : category,
-      'documentUrl' : documentUrl,
-      'ocr' : ocr,
+      'images' : images,
       'tags' : tags,
     };
   }

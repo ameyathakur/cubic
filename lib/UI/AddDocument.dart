@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:path/path.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cubic/Custom%20Models/Document.dart';
 import 'package:cubic/Widgets/Button.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,7 +17,6 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_genius_scan/flutter_genius_scan.dart';
-import 'package:image_picker/image_picker.dart';
 
 String chip1 = 'Tag 1', chip2 = 'Tag 2', chip3 = 'Tag 3';
 
@@ -320,8 +322,10 @@ class _AddDocumentState extends State<AddDocument> {
                                           children: [
                                             SizedBox(
                                                 height: 100,
-                                                child: Image.file(
-                                                    imageList[index])),
+                                                child: (imageList[index].path.split('.').last != "pdf")?
+                                                Image.file(
+                                                    imageList[index]): Padding(padding: EdgeInsets.only(left: 25, top: 4), child: Text(basename(imageList[index].path))),
+                                            ),
                                             Align(
                                               alignment: Alignment.topRight,
                                               child: IconButton(
@@ -362,21 +366,22 @@ class _AddDocumentState extends State<AddDocument> {
                                           Navigator.of(context,
                                                   rootNavigator: true)
                                               .pop();
-                                          ImagePicker imagePicker =
-                                              ImagePicker();
-                                          XFile? ximage =
-                                              await imagePicker.pickImage(
-                                                  source: ImageSource.gallery);
 
-                                          File image = File(ximage!.path);
+                                          FilePickerResult? result = await FilePicker.platform.pickFiles();
 
-                                          if (image != null) {
-                                            setState(() {
-                                              imageList.add(image);
-                                            });
+                                          if (result != null) {
+                                            File image = File(result.files.single.path.toString());
+
+                                            if (image != null) {
+                                              setState(() {
+                                                imageList.add(image);
+                                              });
+                                            }
+                                            print("Image List Length:" +
+                                                imageList!.length.toString());
+                                          } else {
+                                            // User canceled the picker
                                           }
-                                          print("Image List Length:" +
-                                              imageList!.length.toString());
                                         },
                                         borderColor: new Color(0xFF208FEE),
                                         textColor: Colors.white,
@@ -455,33 +460,28 @@ class _AddDocumentState extends State<AddDocument> {
 
                           }
 
-                          final pdf = pw.Document();
-
-                          for(int i=0; i<imageList.length; i++){
-                            final image = pw.MemoryImage(
-                              imageList[i].readAsBytesSync(),
-                            );
-
-                            pdf.addPage(pw.Page(build: (pw.Context context) {
-                              return pw.Center(
-                                child: pw.Image(image),
-                              ); // Center
-                            })); // Page
-                          }
-                          final Directory tempDir = Directory.systemTemp;
-                          final String fileName = "${Random().nextInt(10000)}.pdf";
-                          final File file = File('${tempDir.path}/$fileName');
-                          file.writeAsBytes(await pdf.save());
                           DateTime currentPhoneDate = DateTime.now();
                           Timestamp time = Timestamp.fromDate(currentPhoneDate);
-                          TaskSnapshot taskSnapshot = await FirebaseStorage.instance.ref(time.toString()).putFile(file);
-                          String pdfUrl = await taskSnapshot.ref.getDownloadURL();
 
-                          Document document = new Document(nameController.text, illnessController.text, doctorController.text, dobController.text, commentsController.text, category, pdfUrl, "ocr", chips);
+                          String uid = await FirebaseAuth.instance.currentUser!.uid;
+                          List<String> imageUrls = [];
+                          int i = 0;
+                          for (File imageFile in imageList) {
+                            try {
+                              TaskSnapshot taskSnapshot = await FirebaseStorage.instance.ref(uid + time.toString()).child(i.toString()).putFile(imageFile);
+                              String imageUrl = await taskSnapshot.ref.getDownloadURL();
+                              imageUrls.add(imageUrl);
+                              i++;
+                            } catch (err) {
+                              print(err);
+                            }
+                          }
+
+                          Document document = new Document(nameController.text, illnessController.text, doctorController.text, dobController.text, commentsController.text, category, imageUrls, chips);
 
                           CollectionReference reference = FirebaseFirestore.instance.collection('Users');
 
-                          reference.doc('64hhzztX4pqgPkdHg51N').collection('Documents').doc(time.toString()).set(document.toMap());
+                          reference.doc(uid).collection('Documents').doc(uid + time.toString()).set(document.toMap());
                           
                         },
                         color: const Color(0XFF208FEE),
@@ -493,14 +493,6 @@ class _AddDocumentState extends State<AddDocument> {
         ],
       ),
     );
-  }
-
-  Future addImage() async {
-    final ImagePicker _picker = ImagePicker();
-    File image = (await _picker.pickImage(
-        source: ImageSource.gallery, imageQuality: 50)) as File;
-    print('poi ' + image.toString());
-    imageList.add(image);
   }
 }
 
