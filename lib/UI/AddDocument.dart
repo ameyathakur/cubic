@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path/path.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -32,7 +33,7 @@ class AddDocument extends StatefulWidget {
 
 class _AddDocumentState extends State<AddDocument> {
   List<File> imageList = [];
-  int? _value = 1;
+  int? _value = 0;
   List<String> chips = ['Fever', 'Routine', 'BP'];
   TextEditingController nameController = TextEditingController();
   TextEditingController illnessController = TextEditingController();
@@ -441,18 +442,18 @@ class _AddDocumentState extends State<AddDocument> {
                         onPress: () async {
                           String category='';
                           switch(_value){
-                            case 1:
+                            case 0:
                               {
                                 category = 'Prescription';
                               }
                               break;
 
-                            case 2:
+                            case 1:
                               {
                                 category = 'Test Report';
                               }
                               break;
-                            case 3:
+                            case 2:
                               {
                                 category = 'Certificate';
                               }
@@ -477,7 +478,7 @@ class _AddDocumentState extends State<AddDocument> {
                             }
                           }
 
-                          Document document = new Document(nameController.text, illnessController.text, doctorController.text, dobController.text, commentsController.text, category, imageUrls, chips);
+                          Document document = new Document(nameController.text, illnessController.text, doctorController.text, dobController.text, commentsController.text, category, imageUrls, chips, uid + time.toString());
 
                           CollectionReference reference = FirebaseFirestore.instance.collection('Users');
 

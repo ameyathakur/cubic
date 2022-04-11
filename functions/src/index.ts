@@ -4,45 +4,45 @@ import * as admin from "firebase-admin";
 admin.initializeApp(functions.config().firebase);
 
 import * as vision from "@google-cloud/vision";
-const client = new vision.ImageAnnotatorClient();
+const visionClient = new vision.ImageAnnotatorClient();
 
 export const imageTagger = functions.storage
     .object()
     .onFinalize( async (event) => {
       const filePath = event.name;
-      const bucketName = event.bucket;
-      const fileName = path.basename(filePath);
+      const imageUri = "gs://${bucketName}/${filePath}";
 
-const outputPrefix = "results"
-     const gcsSourceUri = "gs://${bucketName}/${fileName}";
-     const gcsDestinationUri = "gs://${bucketName}/${outputPrefix}/";
+      const docRef = admin.firestore().collection("Users")
+          .doc("64hhzztX4pqgPkdHg51N").collection("Document").doc(filePath);
 
-     const inputConfig = {
-       // Supported mime_types are: 'application/pdf' and 'image/tiff'
-       mimeType: "application/pdf",
-       gcsSource: {
-         uri: gcsSourceUri,
-       },
-     };
-     const outputConfig = {
-       gcsDestination: {
-         uri: gcsDestinationUri,
-       },
-     };
-     const features = [{type: "DOCUMENT_TEXT_DETECTION"}];
-     const request = {
-       requests: [
-         {
-           inputConfig: inputConfig,
-           features: features,
-           outputConfig: outputConfig,
-         },
-       ],
-     };
+      const textRequest = await visionClient.documentTextDetection(imageUri);
 
-     const [operation] = await client.asyncBatchAnnotateFiles(request);
-     const [filesResponse] = await operation.promise();
-     const destinationUri =
-       filesResponse.responses[0].outputConfig.gcsDestination.uri;
-     console.log('Json saved to: ' + destinationUri);
+      const fullText = textRequest[0].textAnnotations[0];
+      const text = fullText ? fullText.description : null;
+
+      const webRequest = await visionClient.webDetection(imageUri);
+
+      const web = webRequest[0].webDetection;
+
+      const faceRequest = await visionClient.faceDetection(imageUri);
+
+      const faces = faceRequest[0].faceAnnotations;
+
+      const landmarksRequest = await visionClient.landmarkDetection(imageUri);
+
+      const landmarks = landmarksRequest[0].landmarkAnnotations;
+
+      const data = {text, web, faces, landmarks};
+
+      return docRef.set(data);
     });
+
+
+
+// // Start writing Firebase Functions
+// // https://firebase.google.com/docs/functions/typescript
+//
+// export const helloWorld = functions.https.onRequest((request, response) => {
+//   functions.logger.info("Hello logs!", {structuredData: true});
+//   response.send("Hello from Firebase!");
+// });
