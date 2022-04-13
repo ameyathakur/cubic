@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Document{
   String name, illness, doctor, dov, comments, category, id;
   List<String> tags = [];

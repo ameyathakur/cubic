@@ -7,12 +7,28 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:14649721839:android:e66cd2842f03050143ac1a",
+        "mobilesdk_app_id": "1:14649721839:android:9fa9c522fb2d288f43ac1a",
         "android_client_info": {
-          "package_name": "com.example.cubic"
+          "package_name": "com.transeunt.cubic"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "14649721839-il7rft4km3fpmmpmgll4q1fjuj4ccr7c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.transeunt.cubic",
+            "certificate_hash": "0dcec5aa5ca8436b3fbe37542883b293e372291c"
+          }
+        },
+        {
+          "client_id": "14649721839-tujadg517di5ss8lf9pl4c986tqqdg72.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.transeunt.cubic",
+            "certificate_hash": "3a9445c7524a8acfb38b0c3a56a8301a6e0a7a98"
+          }
+        },
         {
           "client_id": "14649721839-vmsomoni3m9gjeaagl868e1vffaqnloc.apps.googleusercontent.com",
           "client_type": 3

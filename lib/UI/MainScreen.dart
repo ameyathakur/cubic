@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import '../Custom Models/Document.dart';
 import 'AddDocument.dart';
 import 'loginPage.dart';
 
@@ -18,11 +19,12 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  
-  String searchText = '';
+  TextEditingController _searchController = TextEditingController();
+  String searchText='';
+  List<DocumentSnapshot> documents = [];
+  List<Document> documentsModel = [];
 
   Future<void> signout() async {
-
     GoogleSignIn googleSignIn = GoogleSignIn();
 
     try {
@@ -35,6 +37,12 @@ class _MainScreenState extends State<MainScreen> {
 
   final db = FirebaseFirestore.instance;
   final uid = FirebaseAuth.instance.currentUser!.uid;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +95,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
               ListTile(
                 title: const Text('Sign out'),
-                onTap: ()async {
+                onTap: () async {
                   // Update the state of the app
                   signout();
                   Navigator.pushReplacement(
@@ -103,7 +111,7 @@ class _MainScreenState extends State<MainScreen> {
         ),
         body: SingleChildScrollView(
           child:
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Container(
                 padding: EdgeInsets.only(top: 50, bottom: 20),
                 decoration: BoxDecoration(
@@ -118,135 +126,130 @@ class _MainScreenState extends State<MainScreen> {
                         borderRadius: BorderRadius.circular(10)),
                     child: Center(
                       child: TextField(
-                        onChanged: (val){
+                        onChanged: (val) {
                           setState(() {
-                            searchText = val;
+                          searchText = val;
                           });
+                          search();
+
                         },
                         decoration: InputDecoration(
                             contentPadding: EdgeInsets.only(left: 10.0),
                             hintText:
-                            'Search by Prescription, Doctor’s name or Disease',
+                                'Search by Prescription, Doctor’s name or Disease',
                             border: InputBorder.none),
                       ),
                     ))),
-
             Padding(
                 padding: EdgeInsets.only(left: 40, top: 40, bottom: 20),
                 child: Text('Recents', style: const TextStyle(fontSize: 20.0))),
 
-            StreamBuilder<QuerySnapshot>(
-                stream : db.collection('Users').doc(uid).collection('Documents').orderBy('id', descending: true).snapshots(),
-                builder: (context, snapshot){
-                  if (!snapshot.hasData) {
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                  else{
-                    List<DocumentSnapshot> documents = [];
-                    List<DocumentSnapshot> temp = [];
-                    if (searchText.length > 0) {
-                      temp.addAll(snapshot.data!.docs.where((element) {
-                        return element
-                            .get('category')
-                            .toString()
-                            .toLowerCase()
-                            .contains(searchText.toLowerCase());
-                      }));
+               FutureBuilder(
+                 future: search(),
+                    builder: (context, snapshot){
+                      if (!snapshot.hasData) {
+                        return Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
 
-                      temp.addAll(snapshot.data!.docs.where((element) {
-                        return element
-                            .get('comments')
-                            .toString()
-                            .toLowerCase()
-                            .contains(searchText.toLowerCase());
-                      }));
+                        return new ListView(
+                            physics: ScrollPhysics(),
+                            scrollDirection: Axis.vertical,
+                            shrinkWrap: true,
+                            children: documents.map((doc)  {
+                              return GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                documentDetails()));
+                                  },
+                                  child: Row(children: [
+                                    Padding(padding: EdgeInsets.all(10.0)),
+                                    Container(
+                                        padding: EdgeInsets.all(10.0),
+                                        height: 50.0,
+                                        width: 50.0,
+                                        child: ((doc.data() as Map<String, dynamic>)['category'] == 'Prescription') ? Image.asset('Assets/prescription.png')
+                                            : ((doc.data() as Map<String, dynamic>)['category'] == 'Test Report') ? Image.asset('Assets/lab_report.png')
+                                            :Image.asset('Assets/medical_certificate.png')
+                                    ),
+                                    Flexible(child: Text((doc.data() as Map<String, dynamic>)['date of visit'] + '_' + (doc.data() as Map<String, dynamic>)['doctor'] + '_' + (doc.data() as Map<String, dynamic>)['illness'])),
+    ]));
+    }).toList());
+    })]),
+  )
+  );
+}
 
-                      temp.addAll(snapshot.data!.docs.where((element) {
-                        return element
-                            .get('date of visit')
-                            .toString()
-                            .toLowerCase()
-                            .contains(searchText.toLowerCase());
-                      }));
+  Future<List<DocumentSnapshot>> search() async {
 
-                      temp.addAll(snapshot.data!.docs.where((element) {
-                        return element
-                            .get('doctor')
-                            .toString()
-                            .toLowerCase()
-                            .contains(searchText.toLowerCase());
-                      }));
+      CollectionReference documentReference =
+      await db.collection('Users').doc(uid).collection('Documents');
 
-                      temp.addAll(snapshot.data!.docs.where((element) {
-                        return element
-                            .get('illness')
-                            .toString()
-                            .toLowerCase()
-                            .contains(searchText.toLowerCase());
-                      }));
+      List<DocumentSnapshot> dummy = [];
+      {
+        await documentReference.get().then((value) async {for(DocumentSnapshot element in value.docs) {
 
-                      temp.addAll(snapshot.data!.docs.where((element) {
-                        return element
-                            .get('name')
-                            .toString()
-                            .toLowerCase()
-                            .contains(searchText.toLowerCase());
-                      }));
+          bool flag = true;
 
-                      temp.addAll(snapshot.data!.docs.where((element) {
-                        return element
-                            .get('tags')
-                            .toString()
-                            .toLowerCase()
-                            .contains(searchText.toLowerCase());
-                      }));
+          if(element.get('category').toString().toLowerCase().contains(searchText.toLowerCase())){
+            print('catrgory');
+            dummy.add(element);
+            flag = false;
+          }
+            if(flag && element.get('comments').toLowerCase().toString().contains(searchText.toLowerCase())){
+              print('comments');
+              dummy.add(element);
+              flag = false;
+            }
+          if(flag && element.get('date of visit').toLowerCase().toString().contains(searchText.toLowerCase())){
+            print('dob');
+            dummy.add(element);
+            flag = false;
+          }
 
-                      temp.addAll(snapshot.data!.docs.where((element) {
-                        return element
-                            .get('tags')
-                            .toString()
-                            .toLowerCase()
-                            .contains(searchText.toLowerCase());
-                      }));
+          if(flag && element.get('doctor').toString().toLowerCase().contains(searchText.toLowerCase())){
+            print('doctor');
+            dummy.add(element);
+            flag = false;
+          }
 
-                      Set<String> seenDocumentTitles = Set<String>();
-                      documents = temp.where((document) => seenDocumentTitles.add(document.id)).toList();
-                    }
+          if(flag && element.get('illness').toString().toLowerCase().contains(searchText.toLowerCase())){
+            print('illness');
+            dummy.add(element);
+            flag = false;
+          }
 
-                    else{
-                      documents = snapshot.data!.docs;
-                    }
+          if(flag && element.get('name').toString().toLowerCase().contains(searchText.toLowerCase())){
+            print('name');
+            dummy.add(element);
+            flag = false;
+          }
 
+          if(flag && element.get('tags').toString().toLowerCase().contains(searchText.toLowerCase())){
+            print('tags');
+            dummy.add(element);
+            flag = false;
+          }
 
+          if(flag){
+          await documentReference.doc(element.id).collection('ocr').get()
+              .then((value) {
+                bool semiflag = true;
+              for(DocumentSnapshot oc in value.docs) {
+                if(semiflag && oc['text'].toString().toLowerCase().contains(searchText.toLowerCase())){
+                  dummy.add(element);
+                  semiflag = false;
+                }
+          }});}
+        }});
+      }
+      print('2');
+      documents = dummy;
 
-                    return new Column(
-                        children: documents.map((doc)  {
-                          return GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (BuildContext context) =>
-                                            documentDetails()));
-                              },
-                              child: Row(children: [
-                                Padding(padding: EdgeInsets.all(10.0)),
-                                Container(
-                                  padding: EdgeInsets.all(10.0),
-                                  height: 50.0,
-                                  width: 50.0,
-                                  child: ((doc.data() as Map<String, dynamic>)['category'] == 'Prescription') ? Image.asset('Assets/prescription.png')
-                                      : ((doc.data() as Map<String, dynamic>)['category'] == 'Test Report') ? Image.asset('Assets/lab_report.png')
-                                      :Image.asset('Assets/medical_certificate.png')
-                                ),
-                                Flexible(child: Text((doc.data() as Map<String, dynamic>)['date of visit'] + '_' + (doc.data() as Map<String, dynamic>)['doctor'] + '_' + (doc.data() as Map<String, dynamic>)['illness'])),
-                              ]));
-                        }).toList());
-                  }
-                })
-          ]),
-        ));
+      return documents;
   }
 }

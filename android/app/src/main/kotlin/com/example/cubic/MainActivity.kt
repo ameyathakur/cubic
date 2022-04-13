@@ -1,4 +1,4 @@
-package com.example.cubic
+package com.transeunt.cubic
 
 import io.flutter.embedding.android.FlutterActivity
 

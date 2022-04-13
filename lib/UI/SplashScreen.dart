@@ -156,7 +156,7 @@ class _Splashscreenstate extends State<SplashScreen>
           List<MemberModel>.from(l.map((model) => MemberModel.fromJson(model)));
 
       for (int i = 0; i < membersi.length; i++) {
-        if (membersi[i].subscribed == true) {
+        if (membersi[i].deleted == false) {
           paid = true;
           break;
         }
