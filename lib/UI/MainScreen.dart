@@ -20,7 +20,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   TextEditingController _searchController = TextEditingController();
-  String searchText='';
+  String searchText = '';
   List<DocumentSnapshot> documents = [];
   List<Document> documentsModel = [];
 
@@ -58,7 +58,7 @@ class _MainScreenState extends State<MainScreen> {
                 child: Button(
                     text: 'Add Document',
                     onPress: () {
-                      Navigator.push(
+                      Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                               builder: (BuildContext context) =>
@@ -89,7 +89,7 @@ class _MainScreenState extends State<MainScreen> {
                   // Update the state of the app
                   // ...
                   // Then close the drawer
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  Navigator.of(context).push(MaterialPageRoute(
                       builder: (BuildContext context) => UserProfile()));
                 },
               ),
@@ -111,7 +111,7 @@ class _MainScreenState extends State<MainScreen> {
         ),
         body: SingleChildScrollView(
           child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Container(
                 padding: EdgeInsets.only(top: 50, bottom: 20),
                 decoration: BoxDecoration(
@@ -128,15 +128,14 @@ class _MainScreenState extends State<MainScreen> {
                       child: TextField(
                         onChanged: (val) {
                           setState(() {
-                          searchText = val;
+                            searchText = val;
                           });
                           search();
-
                         },
                         decoration: InputDecoration(
                             contentPadding: EdgeInsets.only(left: 10.0),
                             hintText:
-                                'Search by Prescription, Doctor’s name or Disease',
+                            'Search by Prescription, Doctor’s name or Disease',
                             border: InputBorder.none),
                       ),
                     ))),
@@ -144,112 +143,135 @@ class _MainScreenState extends State<MainScreen> {
                 padding: EdgeInsets.only(left: 40, top: 40, bottom: 20),
                 child: Text('Recents', style: const TextStyle(fontSize: 20.0))),
 
-               FutureBuilder(
-                 future: search(),
-                    builder: (context, snapshot){
-                      if (!snapshot.hasData) {
-                        return Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
+            FutureBuilder(
+                future: search(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
 
-                        return new ListView(
-                            physics: ScrollPhysics(),
-                            scrollDirection: Axis.vertical,
-                            shrinkWrap: true,
-                            children: documents.map((doc)  {
-                              return GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (BuildContext context) =>
-                                                documentDetails()));
-                                  },
-                                  child: Row(children: [
-                                    Padding(padding: EdgeInsets.all(10.0)),
-                                    Container(
-                                        padding: EdgeInsets.all(10.0),
-                                        height: 50.0,
-                                        width: 50.0,
-                                        child: ((doc.data() as Map<String, dynamic>)['category'] == 'Prescription') ? Image.asset('Assets/prescription.png')
-                                            : ((doc.data() as Map<String, dynamic>)['category'] == 'Test Report') ? Image.asset('Assets/lab_report.png')
-                                            :Image.asset('Assets/medical_certificate.png')
-                                    ),
-                                    Flexible(child: Text((doc.data() as Map<String, dynamic>)['date of visit'] + '_' + (doc.data() as Map<String, dynamic>)['doctor'] + '_' + (doc.data() as Map<String, dynamic>)['illness'])),
-    ]));
-    }).toList());
-    })]),
-  )
-  );
-}
+                  return new ListView(
+                      physics: ScrollPhysics(),
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      reverse: true,
+                      children: documents.map((doc) {
+                        return GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          documentDetails(
+                                              documentSnapshot: doc)));
+                            },
+                            child: Row(children: [
+                              Padding(padding: EdgeInsets.all(10.0)),
+                              Container(
+                                  padding: EdgeInsets.all(10.0),
+                                  height: 50.0,
+                                  width: 50.0,
+                                  child: ((doc.data() as Map<String,
+                                      dynamic>)['category'] == 'Prescription')
+                                      ? Image.asset('Assets/prescription.png')
+                                      : ((doc.data() as Map<String,
+                                      dynamic>)['category'] == 'Test Report')
+                                      ? Image.asset('Assets/lab_report.png')
+                                      : Image.asset(
+                                      'Assets/medical_certificate.png')
+                              ),
+                              Flexible(child: Text((doc.data() as Map<String,
+                                  dynamic>)['date of visit'] + '_' +
+                                  (doc.data() as Map<String,
+                                      dynamic>)['doctor'] + '_' +
+                                  (doc.data() as Map<String,
+                                      dynamic>)['illness'])),
+                            ]));
+                      }).toList());
+                })
+          ]),
+        )
+    );
+  }
 
   Future<List<DocumentSnapshot>> search() async {
+    CollectionReference documentReference =
+    await db.collection('Users').doc(uid).collection('Documents');
 
-      CollectionReference documentReference =
-      await db.collection('Users').doc(uid).collection('Documents');
-
-      List<DocumentSnapshot> dummy = [];
-      {
-        await documentReference.get().then((value) async {for(DocumentSnapshot element in value.docs) {
-
+    List<DocumentSnapshot> dummy = [];
+    {
+      await documentReference.get().then((value) async {
+        for (DocumentSnapshot element in value.docs) {
           bool flag = true;
 
-          if(element.get('category').toString().toLowerCase().contains(searchText.toLowerCase())){
+          if (element.get('category').toString().toLowerCase().contains(
+              searchText.toLowerCase())) {
             print('catrgory');
             dummy.add(element);
             flag = false;
           }
-            if(flag && element.get('comments').toLowerCase().toString().contains(searchText.toLowerCase())){
-              print('comments');
-              dummy.add(element);
-              flag = false;
-            }
-          if(flag && element.get('date of visit').toLowerCase().toString().contains(searchText.toLowerCase())){
+          if (flag && element.get('comments').toLowerCase().toString().contains(
+              searchText.toLowerCase())) {
+            print('comments');
+            dummy.add(element);
+            flag = false;
+          }
+          if (flag &&
+              element.get('date of visit').toLowerCase().toString().contains(
+                  searchText.toLowerCase())) {
             print('dob');
             dummy.add(element);
             flag = false;
           }
 
-          if(flag && element.get('doctor').toString().toLowerCase().contains(searchText.toLowerCase())){
+          if (flag && element.get('doctor').toString().toLowerCase().contains(
+              searchText.toLowerCase())) {
             print('doctor');
             dummy.add(element);
             flag = false;
           }
 
-          if(flag && element.get('illness').toString().toLowerCase().contains(searchText.toLowerCase())){
+          if (flag && element.get('illness').toString().toLowerCase().contains(
+              searchText.toLowerCase())) {
             print('illness');
             dummy.add(element);
             flag = false;
           }
 
-          if(flag && element.get('name').toString().toLowerCase().contains(searchText.toLowerCase())){
+          if (flag && element.get('name').toString().toLowerCase().contains(
+              searchText.toLowerCase())) {
             print('name');
             dummy.add(element);
             flag = false;
           }
 
-          if(flag && element.get('tags').toString().toLowerCase().contains(searchText.toLowerCase())){
+          if (flag && element.get('tags').toString().toLowerCase().contains(
+              searchText.toLowerCase())) {
             print('tags');
             dummy.add(element);
             flag = false;
           }
 
-          if(flag){
-          await documentReference.doc(element.id).collection('ocr').get()
-              .then((value) {
-                bool semiflag = true;
-              for(DocumentSnapshot oc in value.docs) {
-                if(semiflag && oc['text'].toString().toLowerCase().contains(searchText.toLowerCase())){
+          if (flag) {
+            await documentReference.doc(element.id).collection('ocr').get()
+                .then((value) {
+              bool semiflag = true;
+              for (DocumentSnapshot oc in value.docs) {
+                if (semiflag && oc['text'].toString().toLowerCase().contains(
+                    searchText.toLowerCase())) {
                   dummy.add(element);
                   semiflag = false;
                 }
-          }});}
-        }});
-      }
-      print('2');
-      documents = dummy;
-
-      return documents;
+              }
+            });
+          }
+        }
+      });
+    }
+    print('2');
+    documents = dummy;
+    return documents;
   }
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:cubic/UI/MainScreen.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path/path.dart';
 
@@ -19,7 +20,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_genius_scan/flutter_genius_scan.dart';
 
-String chip1 = 'Tag 1', chip2 = 'Tag 2', chip3 = 'Tag 3';
 
 enum members { Prescription, Test_Report, Certificate }
 members m = members.Prescription;
@@ -42,22 +42,43 @@ class _AddDocumentState extends State<AddDocument> {
   TextEditingController commentsController = TextEditingController();
   TextEditingController tagController = TextEditingController();
   List<String> categories = ['Prescription', 'Test Report', 'Certificate'];
+  final _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
     Firebase.initializeApp();
-    return Scaffold(
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (BuildContext context) =>
+                    MainScreen()));
+        return true;
+      },
+      child:
+      Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: Row(
         children: [
           Container(
+            child: Align(alignment: Alignment.topCenter, child: Padding(padding: EdgeInsets.only(top : 30), child: BackButton(onPressed: (){
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) =>
+                          MainScreen()));
+            },))),
             width: 73.0,
+            height: MediaQuery.of(context).size.height,
             color: const Color(0xFFFFBD59),
           ),
           Expanded(
             child: SingleChildScrollView(
                 padding: EdgeInsets.only(top: 50),
+              child: Form(
+                  key: _formKey,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -69,7 +90,13 @@ class _AddDocumentState extends State<AddDocument> {
                             border: Border.all(color: Colors.black, width: 1.5),
                             borderRadius: BorderRadius.circular(7)),
                         child: Center(
-                          child: TextField(
+                          child: TextFormField(
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your name';
+                              }
+                              return null;
+                            },
                             controller: nameController,
                             decoration: InputDecoration(
                                 contentPadding: EdgeInsets.only(left: 10.0),
@@ -85,7 +112,13 @@ class _AddDocumentState extends State<AddDocument> {
                             border: Border.all(color: Colors.black, width: 1.5),
                             borderRadius: BorderRadius.circular(7)),
                         child: Center(
-                          child: TextField(
+                          child: TextFormField(
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter the illness';
+                              }
+                              return null;
+                            },
                             controller: illnessController,
                             decoration: InputDecoration(
                                 contentPadding: EdgeInsets.only(left: 10.0),
@@ -101,7 +134,13 @@ class _AddDocumentState extends State<AddDocument> {
                             border: Border.all(color: Colors.black, width: 1.5),
                             borderRadius: BorderRadius.circular(7)),
                         child: Center(
-                          child: TextField(
+                          child: TextFormField(
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter the name of doctor';
+                              }
+                              return null;
+                            },
                             controller: doctorController,
                             decoration: InputDecoration(
                                 contentPadding: EdgeInsets.only(left: 10.0),
@@ -129,7 +168,13 @@ class _AddDocumentState extends State<AddDocument> {
                                       color: Colors.black, width: 1.5),
                                   borderRadius: BorderRadius.circular(7)),
                               child: Center(
-                                child: TextField(
+                                child: TextFormField(
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Enter the date';
+                                      }
+                                      return null;
+                                    },
                                     controller: dobController,
                                     decoration: InputDecoration(
                                         contentPadding:
@@ -368,7 +413,11 @@ class _AddDocumentState extends State<AddDocument> {
                                                   rootNavigator: true)
                                               .pop();
 
-                                          FilePickerResult? result = await FilePicker.platform.pickFiles();
+                                          FilePickerResult? result = await FilePicker.platform.pickFiles(
+                                            type: FileType.custom,
+                                            allowMultiple: true,
+                                            allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
+                                          );
 
                                           if (result != null) {
                                             File image = File(result.files.single.path.toString());
@@ -440,6 +489,7 @@ class _AddDocumentState extends State<AddDocument> {
                     Button(
                         text: 'Save',
                         onPress: () async {
+                          if(_formKey.currentState!.validate()){
                           String category='';
                           switch(_value){
                             case 0:
@@ -482,18 +532,22 @@ class _AddDocumentState extends State<AddDocument> {
 
                           CollectionReference reference = FirebaseFirestore.instance.collection('Users');
 
-                          reference.doc(uid).collection('Documents').doc(uid + time.toString()).set(document.toMap());
+                          reference.doc(uid).collection('Documents').doc(uid + time.toString()).set(document.toMap()).whenComplete(() { Fluttertoast.showToast(msg: 'Record Added Successfully'); Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      MainScreen()));});
                           
-                        },
+                        }},
                         color: const Color(0XFF208FEE),
                         borderColor: const Color(0XFF208FEE),
                         textColor: Colors.white)
                   ],
                 )),
-          )
+          ))
         ],
       ),
-    );
+    ));
   }
 }
 

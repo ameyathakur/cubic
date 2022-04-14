@@ -1,6 +1,6 @@
-import 'dart:convert';
+import 'dart:io';
 import 'dart:ui';
-
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_api/model_queries.dart';
 import 'package:amplify_flutter/amplify_flutter.dart';
@@ -9,12 +9,14 @@ import 'package:cubic/UI/MainScreen.dart';
 import 'package:cubic/Widgets/Button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 import '../Custom Models/MemberModel.dart';
 import '../models/User.dart';
+import 'RegisterScreen.dart';
 
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({Key? key}) : super(key: key);
@@ -141,7 +143,13 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       Padding(
                         padding: EdgeInsets.fromLTRB(20, 100, 20, 20),
                         child: Text(
-                            'You are 1 step away from your medical record digital diary. Sit back and relax, we will remember your prescriptions and other medical records from here. Thank you for choosing Cubic.',
+                            'You are just 1 step away from your medical record digital diary. Sit back and relax!',
+                            textAlign: TextAlign.justify),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(20, 20, 20, 20),
+                        child: Text(
+                            'We will remember your prescriptions and other medical records from here. Thank you for choosing Cubic.',
                             textAlign: TextAlign.justify),
                       ),
                       Align(
@@ -151,22 +159,48 @@ class _PaymentScreenState extends State<PaymentScreen> {
                               child: Text('Here are few things to note'))),
                       Padding(
                           padding: EdgeInsets.fromLTRB(40, 10, 20, 0),
-                          child: Text('1.	The above amount includes your annual subscription', textAlign: TextAlign.justify,
+                          child: Text(
+                            '1.	The above amount includes your annual subscription',
+                            textAlign: TextAlign.justify,
                           )),
-                  Align(
-                    alignment: Alignment.topLeft,
-                    child:
-                    Padding(
+                      Align(
+                          alignment: Alignment.topLeft,
+                          child: Padding(
+                              padding: EdgeInsets.fromLTRB(40, 10, 20, 0),
+                              child: Text(
+                                '2.	The amount is inclusive of all taxes',
+                                textAlign: TextAlign.justify,
+                              ))),
+                      Padding(
                           padding: EdgeInsets.fromLTRB(40, 10, 20, 0),
-                          child: Text('2.	The amount is inclusive of all taxes', textAlign: TextAlign.justify,))),
-                      Padding(padding: EdgeInsets.fromLTRB(40, 10, 20, 0),
-                        child:
-                        Text(
-                          '3.	You are allowed to store only medical records. If we identify any non-medical records, the user will be blocked and no refund will be offered.', textAlign: TextAlign.justify,)),
-                  Padding(padding: EdgeInsets.fromLTRB(40, 10, 20, 0),
-                    child:
-                      Text(
-                          '4.	Please reach out to cubic-support@transeunt.in for any queries'))
+                          child: Text(
+                            '3.	You are allowed to store only medical records. If we identify any non-medical records, the user will be blocked and no refund will be offered.',
+                            textAlign: TextAlign.justify,
+                          )),
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(40, 10, 20, 0),
+                        child: RichText(
+                          text: TextSpan(
+                            style: TextStyle(fontSize: 16, color: Colors.black),
+                            children: <TextSpan>[
+                              TextSpan(text: '4.	Please reach out to '),
+                              TextSpan(
+                                  text: 'cubic-support@transeunt.in',
+                                  style: linkStyle,
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () async {
+                                      final Email email = Email(
+                                        recipients: [
+                                          'cubic-support@transeunt.in'
+                                        ],
+                                      );
+                                      await FlutterEmailSender.send(email);
+                                    }),
+                              TextSpan(text: ' for any queries')
+                            ],
+                          ),
+                        ),
+                      )
                     ],
                   ))),
         ]));

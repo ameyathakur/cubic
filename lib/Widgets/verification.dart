@@ -213,7 +213,7 @@ class _verificationState extends State<verification> {
 
             for (int i = 0; i < membersi.length; i++) {
 
-              if (membersi[i].subscribed == true) {
+              if (membersi[i].deleted == false) {
                 paid = true;
                 Navigator.pushReplacement(
                     context,

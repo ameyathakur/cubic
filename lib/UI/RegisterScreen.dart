@@ -1,17 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:core';
 import 'dart:core';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:amplify_api/amplify_api.dart';
-import 'package:amplify_flutter/amplify_flutter.dart';
 import 'package:cubic/Custom%20Models/MemberModel.dart';
-import 'package:cubic/UI/MainScreen.dart';
 import 'package:cubic/UI/PaymentScreen.dart';
 import 'package:cubic/Widgets/Button.dart';
 import 'package:cubic/Widgets/FamilyMember.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
@@ -23,10 +17,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:otp_text_field/otp_field.dart';
 import 'package:otp_text_field/style.dart';
-
-import '../amplifyconfiguration.dart';
-
-import '../models/ModelProvider.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -445,6 +435,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   child: Text('Add Family Member',
                                       style: TextStyle(fontSize: 16.0))),
                             )),
+                        Padding(padding: EdgeInsets.only(left: 20, right: 20), child:
+                        Text('Please add all your family members now. You will not be able to add them later.'),
+                        ),
                         Padding(
                             padding:
                                 EdgeInsets.only(top: 20, left: 20, right: 20),
