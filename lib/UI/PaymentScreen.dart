@@ -207,7 +207,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
-    Fluttertoast.showToast(msg: response.signature.toString());
     for (int i = 0; i < membersi.length; i++) {
       if (names[membersi[i].name] == true) {
         membersi[i].deleted = false;
@@ -217,7 +216,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
 
     users
-        .doc('64hhzztX4pqgPkdHg51N')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
         .update({'members': membersi.map((i) => i.toMap()).toList()});
 
     Navigator.of(context).pushReplacement(

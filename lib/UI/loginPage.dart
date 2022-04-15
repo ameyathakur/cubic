@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cubic/UI/MainScreen.dart';
 import 'package:cubic/UI/OTPverification.dart';
 import 'package:cubic/Widgets/Button.dart';
@@ -8,7 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+import '../Custom Models/MemberModel.dart';
 import '../Widgets/Header.dart';
+import 'PaymentScreen.dart';
 import 'RegisterScreen.dart';
 
 class login extends StatefulWidget {
@@ -24,22 +27,10 @@ class _loginState extends State<login> {
   }
 
   String phone_number="";
+  CollectionReference collectionReference =
+  FirebaseFirestore.instance.collection('Users');
 
   bool isLoading = false;
-
-//........................................Validating phone-field..........................//
-
-// validateMobile(TextEditingController value) {
-//   String pattern = r'(^(?:[+0]9)?[0-9]{10,12}$)';
-//   RegExp regExp = RegExp(pattern);
-//   if (value.text.isEmpty || value.text.length!=12) {
-//       return  Fluttertoast.showToast(msg:"Enter phone number",gravity:ToastGravity.BOTTOM);
-//       }
-//   else if (!regExp.hasMatch(value.text)) {
-//       return  Fluttertoast.showToast(msg:"Enter valid phone number",gravity:ToastGravity.BOTTOM);
-//   }
-//   else{return null;}
-// }
 
   @override
   Widget build(BuildContext context) {
@@ -150,20 +141,47 @@ class _loginState extends State<login> {
                   user = userCredential.user;
                   // print('times ' + user!.metadata.creationTime.toString());
 
-                  if (userCredential.additionalUserInfo!.isNewUser ==
-                      true) {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (BuildContext context) =>
-                                RegisterScreen()));
-                  } else {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (BuildContext context) =>
-                                MainScreen()));
+              await collectionReference
+                  .doc(user!.uid)
+                  .get()
+                  .then((DocumentSnapshot documentSnapshot) {
+                bool paid = false;
+                if (!documentSnapshot.exists) {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              RegisterScreen()));
+                } else {
+                  List<dynamic> data =
+                  documentSnapshot.get('members');
+
+                  List<MemberModel> membersi = [];
+                  Iterable l = data;
+                  membersi = List<MemberModel>.from(
+                      l.map((model) => MemberModel.fromJson(model)));
+
+                  for (int i = 0; i < membersi.length; i++) {
+                    if (membersi[i].deleted == false) {
+                      paid = true;
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  MainScreen()));
+                      return;
+                    }
                   }
+
+                  if (paid == false) {
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                PaymentScreen()));
+                  }
+                }
+              });
                 } on FirebaseAuthException catch (e) {
                   if (e.code ==
                       'account-exists-with-different-credential') {

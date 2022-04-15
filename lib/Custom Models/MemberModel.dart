@@ -8,7 +8,7 @@ class MemberModel {
       this.gender = '',
       this.dob = '',
       this.adhar = '',
-      this.deleted = false,
+      this.deleted = true,
       this.subscribed = false});
 
   factory MemberModel.fromJson(dynamic json) {

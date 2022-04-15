@@ -67,11 +67,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double unitHeightValue = MediaQuery.of(context).size.height * 0.01;
     Firebase.initializeApp();
 
+    return WillPopScope(
+        onWillPop: () async {
+      GoogleSignIn googleSignIn = GoogleSignIn();
 
+      try {
+        await FirebaseAuth.instance.signOut();
+        googleSignIn.signOut();
+      } catch (e) {
+        print(e);
+      }
 
-    return Scaffold(
+      Navigator.pop(context);
+      return true;
+    },
+    child:
+      Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       body: Row(
@@ -203,6 +217,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     child: GestureDetector(
                                       onTap: () async {
                                         //get the credentials of the new linking account
+                                        CircularProgressIndicator();
                                         final GoogleSignIn _googleSignIn =
                                             GoogleSignIn();
 
@@ -220,7 +235,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                                         //now link these credentials with the existing user
                                         FirebaseAuth.instance.currentUser!
-                                            .linkWithCredential(gcredential);
+                                            .linkWithCredential(gcredential).whenComplete(() {
+                                          CircularProgressIndicator(value: 0.0);
+                                              setState(() {
+
+                                            });
+                                            Fluttertoast.showToast(msg: 'Email id added successfully');
+                                            });
                                       },
                                       child: Stack(
                                         alignment: Alignment.center,
@@ -238,10 +259,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             children: [
                                               Image.asset(
                                                 'Assets/google_logo.png',
-                                                width: 50,
-                                                height: 50,
+                                                width: 5*unitHeightValue,
+                                                height: 5*unitHeightValue,
                                               ),
-                                              Text('Add your Google Account')
+                                              Text('Add your Google Account', style: TextStyle(fontSize: 1.5*unitHeightValue),)
                                             ],
                                           )
                                         ],
@@ -252,8 +273,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       padding:
                                           EdgeInsets.fromLTRB(20, 0, 20, 0),
                                       child: Text(
-                                        'If you add your google account above, it will get linked to you registration number which will make your experience smoother',
+                                        'If you add your google account above, it will get linked to you registration number which will make your experience smoother', textAlign: TextAlign.justify,
                                         style: TextStyle(
+                                          fontSize: 1.5*unitHeightValue,
                                             color: const Color(0xFF696969)),
                                       ))
                                 ],
@@ -280,7 +302,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     },
                                     decoration: InputDecoration(
                                         contentPadding:
-                                            EdgeInsets.only(left: 10.0),
+                                            EdgeInsets.only(left: unitHeightValue),
                                         hintText: 'Name',
                                         border: InputBorder.none),
                                   ),
@@ -295,7 +317,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       color: Colors.black, width: 1.5),
                                   borderRadius: BorderRadius.circular(7)),
                               child: Padding(
-                                padding: EdgeInsets.only(left: 10, right: 10),
+                                padding: EdgeInsets.only(left: unitHeightValue, right: unitHeightValue),
                                 child: DropdownButtonHideUnderline(
                                     child: DropdownButtonFormField2(
                                         validator: (value) {
@@ -333,7 +355,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   padding: EdgeInsets.all(20),
                                   child: Text(
                                     'Date of Birth',
-                                    style: TextStyle(fontSize: 18.0),
+                                    style: TextStyle(fontSize: 2*unitHeightValue),
                                   ),
                                 ),
                                 Flexible(
@@ -359,7 +381,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           controller: dobcontroller,
                                           decoration: InputDecoration(
                                               contentPadding:
-                                                  EdgeInsets.only(left: 10.0),
+                                                  EdgeInsets.only(left: unitHeightValue),
                                               border: InputBorder.none),
                                           onTap: () {
                                             showDatePicker(
@@ -433,7 +455,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     onAddForm();
                                   },
                                   child: Text('Add Family Member',
-                                      style: TextStyle(fontSize: 16.0))),
+                                      style: TextStyle(fontSize: 2*unitHeightValue))),
                             )),
                         Padding(padding: EdgeInsets.only(left: 20, right: 20), child:
                         Text('Please add all your family members now. You will not be able to add them later.'),
@@ -537,7 +559,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           )
         ],
       ),
-    );
+    ));
   }
 
   // void addMemberFields() {
@@ -605,7 +627,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   signIn(AuthCredential authCreds) async {
     //now link these credentials with the existing user
-    FirebaseAuth.instance.currentUser!.linkWithCredential(authCreds).then((value) => Fluttertoast.showToast(msg: 'Mobile number added successfully'));
+    FirebaseAuth.instance.currentUser!.linkWithCredential(authCreds).then((value) => Fluttertoast.showToast(msg: 'Mobile number added successfully')).onError((error, stackTrace) => Fluttertoast.showToast(msg: error.toString(), toastLength: Toast.LENGTH_LONG));
     Navigator.pop(context);
     verified = true;
   }

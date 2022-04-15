@@ -58,6 +58,7 @@ class _verificationState extends State<verification> {
       timeout: const Duration(seconds: 60),
       phoneNumber: phoneNumber,
       verificationCompleted: (PhoneAuthCredential credential) async {
+        print('arrived in completed');
         timer.cancel();
         List<String> pin = [];
 
@@ -88,10 +89,12 @@ class _verificationState extends State<verification> {
             toastLength: Toast.LENGTH_LONG);
       },
       codeAutoRetrievalTimeout: (String verificationId) {
-        Fluttertoast.showToast(
-            msg: 'Time out. Try again',
-            gravity: ToastGravity.BOTTOM,
-            toastLength: Toast.LENGTH_LONG);
+        if (FirebaseAuth.instance.currentUser == null) {
+          Fluttertoast.showToast(
+              msg: 'Time out. Try again',
+              gravity: ToastGravity.BOTTOM,
+              toastLength: Toast.LENGTH_LONG);
+        }
       },
     );
   }
@@ -232,7 +235,8 @@ class _verificationState extends State<verification> {
                           PaymentScreen()));
             }
           }
-        }),
+        }
+        ),
       });}catch (error) {
       print('Sanjita ' + error.toString());
     }
