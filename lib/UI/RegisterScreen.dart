@@ -60,6 +60,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   String phone_number = '';
   bool verified = false;
 
+  bool showProgress = false;
   var namecontroller = TextEditingController();
   var dobcontroller = TextEditingController();
   var adharcontroller = TextEditingController();
@@ -103,6 +104,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     key: _formKey,
                     child: Column(
                       children: [
+                        if(showProgress)
+                          CircularProgressIndicator(),
                         if(FirebaseAuth.instance.currentUser?.phoneNumber == null)
                              Column(
                                 children: [
@@ -217,7 +220,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     child: GestureDetector(
                                       onTap: () async {
                                         //get the credentials of the new linking account
-                                        CircularProgressIndicator();
+
                                         final GoogleSignIn _googleSignIn =
                                             GoogleSignIn();
 
@@ -233,12 +236,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           idToken: googleAuth.idToken,
                                         );
 
+                                        setState(() {
+                                          showProgress = true;
+                                        });
                                         //now link these credentials with the existing user
                                         FirebaseAuth.instance.currentUser!
                                             .linkWithCredential(gcredential).whenComplete(() {
-                                          CircularProgressIndicator(value: 0.0);
-                                              setState(() {
 
+                                              setState(() {
+                                                  showProgress = false;
                                             });
                                             Fluttertoast.showToast(msg: 'Email id added successfully');
                                             });

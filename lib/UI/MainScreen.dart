@@ -81,7 +81,7 @@ class _MainScreenState extends State<MainScreen> {
                 decoration: BoxDecoration(
                   color: Colors.blue,
                 ),
-                child: Text('Drawer Header'),
+                child: Text('Cubic'),
               ),
               ListTile(
                 title: const Text('Profile'),

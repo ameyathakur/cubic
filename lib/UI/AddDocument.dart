@@ -416,7 +416,7 @@ class _AddDocumentState extends State<AddDocument> {
                                           FilePickerResult? result = await FilePicker.platform.pickFiles(
                                             type: FileType.custom,
                                             allowMultiple: true,
-                                            allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
+                                            allowedExtensions: ['jpg', 'jpeg', 'png'],
                                           );
 
                                           if (result != null) {

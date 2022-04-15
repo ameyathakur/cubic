@@ -31,12 +31,17 @@ class _loginState extends State<login> {
   FirebaseFirestore.instance.collection('Users');
 
   bool isLoading = false;
+  bool showProgress = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: Column(
+      body: (showProgress)?
+          Center(child:
+          CircularProgressIndicator()):
+
+      Column(
         children: <Widget>[
           Header(title: 'Login', subtitle: "Welcome to Cubic"),
           Material(
@@ -124,6 +129,10 @@ class _loginState extends State<login> {
               await googleSignIn.signIn();
 
               if (googleSignInAccount != null) {
+
+                setState(() {
+                  showProgress = true;
+                });
                 final GoogleSignInAuthentication
                 googleSignInAuthentication =
                 await googleSignInAccount.authentication;
@@ -136,7 +145,9 @@ class _loginState extends State<login> {
 
                 try {
                   final UserCredential userCredential =
-                  await auth.signInWithCredential(credential);
+                  await auth.signInWithCredential(credential).whenComplete(() {
+
+                  });
 
                   user = userCredential.user;
                   // print('times ' + user!.metadata.creationTime.toString());
@@ -193,6 +204,9 @@ class _loginState extends State<login> {
                   // handle the error here
                 }
               }
+              setState(() {
+                showProgress = false;
+              });
             },
             child:  Stack(
               alignment: Alignment.center,

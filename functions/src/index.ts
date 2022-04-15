@@ -10,10 +10,17 @@ export const imageTagger = functions.storage
     .object()
     .onFinalize( async (event) => {
       const filePath = event.name;
-      const imageUri = "gs://${bucketName}/${filePath}";
+      const bucket = event.bucket;
+      const imageUri = "gs://" + bucket + "/" + filePath;
+      const arr = filePath.split("/");
+      const substrings = filePath.split("Timestamp");
+
+      console.log(arr);
+      console.log(substrings);
 
       const docRef = admin.firestore().collection("Users")
-          .doc("64hhzztX4pqgPkdHg51N").collection("Document").doc(filePath);
+          .doc(substrings[0]).collection("Documents")
+          .doc(arr[0]).collection("ocr").doc(arr[1]);
 
       const textRequest = await visionClient.documentTextDetection(imageUri);
 
@@ -37,12 +44,3 @@ export const imageTagger = functions.storage
       return docRef.set(data);
     });
 
-
-
-// // Start writing Firebase Functions
-// // https://firebase.google.com/docs/functions/typescript
-//
-// export const helloWorld = functions.https.onRequest((request, response) => {
-//   functions.logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
